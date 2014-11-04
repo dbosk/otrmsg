@@ -1,0 +1,73 @@
+\documentclass{llncs}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[british]{babel}
+\usepackage{csquotes}
+\usepackage[style=alphabetic,maxbibnames=99,backend=bibtex8]{biblatex}
+\addbibresource{sec.bib}
+%\usepackage{filecontents}
+%\begin{filecontents}{sec.bib}
+% .! cat sec.bib
+%\end{filecontents}
+
+\usepackage{acronym}
+\newacro{otr}[OTR]{Off-The-Record}
+
+\title{%
+  On the Security of Off-The-Record Messaging
+}
+\author{%
+  Daniel Bosk
+  \and
+  ?
+}
+\institute{%
+  School of Computer Science and Communication\\
+  KTH Royal Institute of Technology\\
+  SE-100\,44 Stockholm, Sweden\\
+  \email{\{dbosk,?\}@kth.se}
+}
+
+\begin{document}
+\maketitle
+\begin{abstract}
+  \dots
+\end{abstract}
+
+
+\section{Introduction}
+
+The original \ac{otr} messaging protocol was first described by 
+\citeauthor{otr2004} in \cite{otr2004}.
+
+The authentication step was further improved by \citeauthor{otr2007} in 
+\cite{otr2007}.
+
+Finally \citeauthor{multiotr2009} described a protocol for multiparty \ac{otr} 
+messaging in \cite{multiotr2009}.
+
+Another attempt at \ac{otr} messaging was done by \citeauthor{di2005secure} in 
+\cite{di2005secure}.
+
+
+\section{A New Adversarial Model}
+
+Motivations for the new model \dots
+
+\subsection{Attacks on the \acs{otr} Messaging Protocol}
+
+\dots
+
+
+\section{A More Secure \acs{otr} Messaging Protocol}
+
+\dots
+
+
+\section{Concluding Remarks}
+
+\dots
+
+
+\printbibliography
+\end{document}
