@@ -2,6 +2,8 @@
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 
+\pagestyle{plain}
+
 \usepackage[british]{babel}
 \usepackage{csquotes}
 \usepackage[style=alphabetic,maxbibnames=99,backend=bibtex8]{biblatex}
@@ -27,7 +29,7 @@
 \DeclareMathOperator{\enc}{\mathrm{Enc}}
 \DeclareMathOperator{\dec}{\mathrm{Dec}}
 \DeclareMathOperator{\mac}{\mathrm{MAC}}
-\DeclareMathOperator{\ord}{Ord}
+\newcommand{\ord}[1]{|#1|}
 \DeclareMathOperator{\Z}{\mathbb Z}
 \DeclareMathOperator{\K}{\mathcal K}
 \DeclareMathOperator{\textand}{\qquad and\qquad}
@@ -47,7 +49,7 @@
   and Deniable Encryption
 }
 \subtitle{%
-  Possibly a draft for a draft (draft\(^2\)) of a paper
+  Maybe eventually a draft for a draft (draft\(^2\)) of a paper
 }
 \author{%
   Daniel Bosk
@@ -90,15 +92,15 @@ The desirable properties that the protocol was designed to provide are
   \item repudiation for the authentication mechanism,
   \item plausible deniability and forgeability for the contents.
 \end{itemize}
-In light of the 2013 revelations about the capabilities of the NSA and GCHQ in 
-2008, e.g.~\cite{nsa1} and \cite{nsa2}, we claim a new adversary model is 
-needed.
+In 2013, the capabilities of the NSA and GCHQ, among others, back in 2008 were 
+revealed, see e.g.~\cite{nsa1} and \cite{nsa2}.
+In light of this, We claim a new adversary model is needed.
 Under this adversary model, some of the properties that the \ac{otr} protocol 
 was designed to provide are \emph{possibly} no longer provided, or are at least 
-reduced in some sense.
+reduced.
 
-We begin by describing the development of the protcols and identify problems 
-and suggest solutions to these problems as we progress.
+We begin by describing the development of the protcols and then identify 
+problems and suggest solutions to these problems.
 We then present the suggested solutions again together in a new protocol.
 
 
@@ -112,10 +114,9 @@ This will be followed by the improvements after the attack published in
 
 \subsection{\acs{otr} version 1 and 2 (and 3)}
 
-As described above, the purpose of the \ac{otr} protocol was to give the same 
-properties to an online conversation as those for a face-to-face real-life 
-conversation.
-The properties, and how they are accomplished, are the following:
+As described above, the purpose of the \ac{otr} protocol was to give an online 
+conversation the properties of a face-to-face real-life conversation.
+The properties, and how they are achieved, are the following:
 \begin{description}
   \item[Perfect forward secrecy] is achieved by continuously changing keys, for 
     every message, using the Diffie-Hellman key agreement protocol \cite{dh}.
@@ -134,7 +135,8 @@ The properties, and how they are accomplished, are the following:
     Since \acp{mac} does not provide non-repudiation, Alice can later repudiate 
     sending a certain message as Bob has the means to forge it.
     % XXX check if it's SHA256 they use with HMAC
-    The \ac{mac} employed is HMAC using SHA256.
+    The \ac{mac} employed is HMAC \cite{hmac} using a SHA-algorithm \cite{shs}.
+    (SHA-1 was used originally, SHA256 subsequently.)
 
   \item[Forgeability and plausible deniability] of message content is achieved 
     by using malleable encryption \cite{nonmalleable}.
@@ -308,16 +310,14 @@ To increase usability they add an adaption of the \ac{smp} \cite{smp} which
 allows them to use a shared low-entropy secret to identify each other instead 
 of the fingerprints of their public keys.
 
-%\subsection{\acs{otr} with Improved Authentication}
-%
-%\dots
-%
-%\subsection{Multi-Party \acs{OTR}}
-%
-%\begin{protocol}[Multi-Party \acs{otr}]
-%  \dots
-%  \qed
-%\end{protocol}
+\subsection{\acs{otr} with Improved Authentication}
+
+\dots described in \cite{otr2007}.
+
+\begin{protocol}[The Socialist Millionaires' Protocol]
+  \dots
+  \qed
+\end{protocol}
 
 \subsection{TextSecure}
 
@@ -351,22 +351,32 @@ changes to adapt it to the setting of smartphone messaging.
 \dots
 
 
+\section{Multi-Party \acs{OTR}}
+
+\dots described in \cite{multiotr2009}.
+
+\begin{protocol}[Multi-Party \acs{otr}]
+  \dots
+  \qed
+\end{protocol}
+
+
 \section{The Main Ideas}
 
-The protocol does not consider an intelligence agency of a nation state as 
+The protocol does not consider the intelligence agency of a nation state as 
 a possible adversary, which should be considered from what we know today.
-In this new adversarial setting, one which is reasonable to assume, where the 
-Eve controls the network and can possibly compromise a computer system at will, 
-some of the properties in the \ac{otr} protocol might no longer be valid.
+In this new adversarial setting, where Eve controls the network and can 
+possibly compromise a computer system at will, some of the properties in the 
+\ac{otr} protocol might no longer be valid.
 More importantly, the nation state does not have to present non-repudiable 
 evidence to a third-party judge, it just has to convince itself.
-The main problem in this setting is that the algorithms employed in this 
-protocol are \enquote{too secure} for our own good.
+We argue that in this setting the algorithms employed in this protocol are 
+\enquote{too secure} for our own good.
 We will elaborate on this.
 
-The arguments in \cite{otr2004} for forgeability using malleable encryption ad 
-punblishing the \ac{mac} keys only hold if the adversary cannot trust the 
-source of the transcript.
+The arguments in \cite{otr2004} for forgeability using malleable encryption and 
+publishing the \ac{mac} keys only hold if the adversary cannot trust the source 
+of the transcript.
 Using the adversary just described, she can ultimately trust the transcript 
 since she collected it herself from the network.
 She then knows exactly which ciphertext Alice sent to Bob, and which ciphertext 
@@ -377,6 +387,10 @@ She knows the \acp{mac} for each ciphertext as well, and that Alice and Bob
 sent them like this.
 She knows that Alice is the author of a message because she observes when Alice 
 publishes the \ac{mac} key.
+When Eve compromises Bob's system, she might be able to see some history of the 
+conversation in his client.
+She can then infer who wrote what thanks to the metadata in her records, e.g.\ 
+message length and ordering.
 
 Furthermore, Eve also gets some information about the key from the ciphertext 
 and \ac{mac}.
@@ -385,6 +399,16 @@ Eve can use the \ac{mac} to discard false keys for the cipher as in Algorithm
 Hence, by having the \ac{mac} key depend on the encryption key, we 
 automatically decrease the number of spurious keys and thus also reduce our 
 possibility for deniability.
+This can be seen in the following equations:
+\begin{equation*}
+  \enc_k( m ) = c = \enc_{k^\prime}( m^\prime )
+\end{equation*}
+and if \(k\neq k^\prime\) then
+\begin{equation*}
+  \Pr\left[
+    \mac_{H(k)}( c ) = \mac_{H(k^\prime)}( c )
+  \right] < 1.
+\end{equation*}
 
 \begin{algorithm}
   \caption{%
@@ -415,42 +439,63 @@ possibility for deniability.
 
 The be able to get deniability in the given scenario, Alice and Bob need to be 
 able to modify the plaintext without modifying the ciphertext.
-This can be accomplished by using the \ac{otp}.
+This can be accomplished by using the \ac{otp}, since then you can easily 
+compute the key from a given plaintext-ciphertext pair.
 
 They also need a \ac{mac} key independent from the encryption key.
+Then they can change the encryption key and the plaintext, but the ciphertext 
+and \ac{mac} remains the same.
 Instead of using \(g^{xy}\in G\) and encryption key and \(H(g^{xy})\) as 
-\ac{mac} key, Alice and Bob can increase the size \(\ord G\) of \(G\) and use 
-the \(n\) least significant bits of \(g^{xy}\) for \ac{mac} and the rest for 
-encryption.
+\ac{mac} key, Alice and Bob can increase the size \(\ord G\) of the group \(G\) 
+and use the \(n\) least significant bits of \(g^{xy}\) for \ac{mac} and the 
+rest for encryption.
 Choosing a group which gieves a keysize of 2048 bits, using 256 bits for 
 \ac{mac} leaves 1792 bits for encryption with \ac{otp}.
-That is 224 bytes, which is considerably larger than what Twitter allows for 
-a tweet (140 characters).
+That is 224 bytes, which is larger than what Twitter allows for a tweet (140 
+characters).
+This way, when using the \ac{otp} they can keep the \ac{mac} key fixed while 
+adapting the encryption key to their new plaintext, then hand the complete key 
+(both \ac{mac} and encryption) to the adversary.
+
+The adversary Eve has two options for verifying whether a given key \(k\) is 
+true or false.
+First, she can find the discrete logarithm \(s = \log_g( k )\) of \(k\) in the 
+base \(g\in G\).
+Then she has to factor \(s = xy\) into \(x\) and \(y\) which can be verified 
+using the recorded values \(g^x\) and \(g^y\).
+Second, she can find the discrete logarithms of the recorded \(g^x\) and 
+\(g^y\) to verify whether \(k = g^{xy}\) it true or not.
+
+However, it can be argued that this is the case already with the current 
+protocol.
+The only difference is that Alice and Bob cannot give Eve any key to 
+\enquote{prove their innocense}, they can just deny because they do not 
+remember the keys (perfect forward secrecy).
+
+An improvement would be if we could also lie to Eve about \(g^x\) and \(g^y\) 
+to convince her about \(g^{xy}\).
+This might be possible if we can introduce some randomness in the transmission 
+of \(g^x\) and \(g^y\).
 
 
-%\section{A More Secure \acs{otr} Messaging Protocol}
-%
-%\dots
-%
-%
-%\section{Using \acs{otr} Messaging in \acsp{osn}}
-%
-%In \acp{osn} like Facebook, people can still communicate through \ac{im}, but 
-%this is not the main form of communication.
-%Twitter is a good example of the new form of communication, where users 
-%communicate by positing up-to-140-characters long messages to each other's 
-%feeds.
-%This means more asynchronous communication.
-%And the same applies for smartphones, with the exception that Twitter feeds are 
-%always public.
-%This was the motivation for TextSecure \cite{TSasynch}.
-%
-%\dots
-%
-%
-%\section{Concluding Remarks}
-%
-%\dots
+\section{A More Secure \acs{otr} Messaging Protocol}
+
+\dots
+
+
+\section{Using \acs{otr} Messaging in \acsp{osn}}
+
+In \acp{osn} like Facebook, people can still communicate through \ac{im}, but 
+this is not the main form of communication.
+Twitter is a good example of the new form of communication, where users 
+communicate by positing up-to-140-characters long messages to each other's 
+feeds.
+This means more asynchronous communication.
+And the same applies for smartphones, with the exception that Twitter feeds are 
+always public.
+This was the motivation for TextSecure \cite{TSasynch}.
+
+\dots
 
 
 \printbibliography
