@@ -480,7 +480,11 @@ of \(g^x\) and \(g^y\).
 
 \section{A More Secure \acs{otr} Messaging Protocol}
 
-\dots
+One way of getting more possibilities for lying would be to introduce some 
+randomness in the Diffie-Hellman key exchange.
+This randomness \(r\) must be easy to change in relation to the chosen exponent 
+\(x\), so that we afterwards can adjust the \(r\) to the change from \(x\) to 
+\(x^\prime\) in \(g^{x^\prime}\).
 
 
 \section{Using \acs{otr} Messaging in \acsp{osn}}
