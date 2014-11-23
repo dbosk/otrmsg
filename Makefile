@@ -1,16 +1,12 @@
 DOCUMENTS= 		otrmsg.pdf
 USE_LATEXMK= 	yes
 
-otrmsg.pdf: otrmsg.tex sec.bib llncs biblatex-lncs
-otrmsg.bbl: otrmsg.pdf
-otrmsg.submission.tex: otrmsg.tex otrmsg.submission.bbl sec.bib
-
+otrmsg.pdf: otrmsg.tex otrmsg-preamble.tex otrmsg-content.tex
+otrmsg.pdf: sec.bib llncs biblatex-lncs
 sec.bib: ../../sec.bib
-	cp -R $^ $@
 
-.PHONY: clean
-clean:
-	${RM} otrmsg.submission.tex
+sec.bib:
+	cp -R $^ $@
 
 .PHONY: clean-all
 clean-all: clean-llncs clean-biblatex-lncs
