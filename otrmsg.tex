@@ -1,9 +1,46 @@
 \documentclass[draft]{llncs}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
+\usepackage[british]{babel}
+\usepackage{csquotes}
+\usepackage[natbib,style=alphabetic,maxbibnames=99,backend=bibtex8]{biblatex}
+\addbibresource{otrmsg.bib}
+\addbibresource{surveillance.bib}
+\addbibresource{crypto.bib}
+
+\usepackage{filecontents}
+
+\usepackage{acronym}
+\newacro{OTR}{Off-The-Record}
+\newacro{IM}{Instant Messaging}
+\newacro{OSN}{Online Social Network}
+\newacro{PFS}{Perfect Forward-Secrecy}
+\newacro{MAC}{Message Authentication Code}
+\newacro{SMP}{Socialist Millionaires' Problem}
+\newacro{OTP}{One-Time Pad}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\DeclareMathOperator{\Sign}{\mathrm{Sign}}
+\DeclareMathOperator{\Enc}{\mathrm{Enc}}
+\DeclareMathOperator{\Dec}{\mathrm{Dec}}
+\DeclareMathOperator{\MAC}{\mathrm{MAC}}
+\newcommand{\ord}[1]{|#1|}
+\DeclareMathOperator{\Z}{\mathbb Z}
+\DeclareMathOperator{\K}{\mathcal K}
+\DeclareMathOperator{\textand}{\qquad and\qquad}
+
+\usepackage[plain]{algorithm}
+\usepackage[noend]{algpseudocode}
+
+\usepackage{marginnote}
+%\usepackage{todonotes}
+\usepackage{fixme}
+\fxusetheme{color}
 
 \pagestyle{plain}
-\input{otrmsg-preamble}
+
+\spnewtheorem{protocol}{Protocol}{\bfseries}{\normalfont}
 
 \begin{document}
 \input{otrmsg-content}

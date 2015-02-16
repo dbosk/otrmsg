@@ -13,7 +13,7 @@
 
 \maketitle
 \begin{abstract}
-  The \ac{otr} messaging protocol gives an adversary information about the key.
+  The \ac{OTR} messaging protocol gives an adversary information about the key.
   In this paper we describe why this is and we (hopefully) present a solution 
   to the problem.
 \end{abstract}
@@ -22,47 +22,58 @@
 \acresetall
 \section{Introduction}
 
-The original \ac{otr} messaging protocol was first described in 2004 by 
-\citeauthor{otr2004} \cite{otr2004}.
-Later improvements occured in 2007 \cite{otr2007} and 2009 \cite{multiotr2009}.
-The main application at the time was \ac{im} through tools like Pidgin 
-\cite{pidgin} (formerly Gaim).
-\ac{im} is still used, however, the context has changed.
-Since 2004 the means of communication has steered over to Facebook, Twitter, 
-and other \acp{osn}, as well as messaging using smartphones instead of 
-computers.
-In 2010, the \ac{otr} messaging protocol was again updated and implemented for
-use in the smartphone text-messaging application TextSecure \cite{textsecure}.
+In 2013, Edward Snowden \cite{landau2013making} revealed the capabilities of 
+the NSA, GCHQ, and their collaborators \cite[e.g.][]{nsa1,nsa2}.
+That showed the techniques considered possible to use against high-value 
+targets now, were routinely used against not only all targets, but against all 
+citizens of the world -- back in 2008!
+In light of this, we need a stronger adversary model.
 
-The desirable properties that the protocol was designed to provide are
+In 2004, \citeauthor{otr2004} \cite{otr2004} first described the \ac{OTR} 
+messaging protocol.
+The design goal of the protocol is to achieve strong privacy properties for 
+users' online communication, the same properties as expected from 
+a face-to-face conversation.
+The main application at the time was \ac{IM} through tools like Pidgin 
+\cite{pidgin} (formerly Gaim).
+\ac{IM} is still used, however, the context has changed.
+Since 2004, users communicate more and more via Facebook, Twitter, and other 
+\acp{OSN}, and they use smartphones instead of computers.
+Later improvements occured in 2007 \cite{otr2007} and 2009 \cite{multiotr2009}.
+In 2010, OpenWhisperSystems updated and implemented the \ac{OTR} messaging 
+protocol for use in the smartphone text-messaging app TextSecure 
+\cite{textsecure}.
+
+The protocol is designed to provide the following properties:
 \begin{itemize}
   \item perfect forward-secrecy for the encryption,
   \item repudiation for the authentication mechanism,
   \item plausible deniability and forgeability for the contents.
 \end{itemize}
-In 2013, the capabilities of the NSA and GCHQ, among others, back in 2008 were 
-revealed, see e.g.~\cite{nsa1} and \cite{nsa2}.
-In light of this, We claim a new adversary model is needed.
-Under this adversary model, some of the properties that the \ac{otr} protocol 
-was designed to provide are \emph{possibly} no longer provided, or are at least 
-reduced.
+Under the new adversary model, some of these properties are \emph{possibly} 
+no longer provided.
+Repudiation and plausible deniability cannot be achieved with an adversary 
+who can intercept everything on the entire network.
+As lack of randomness makes protocol fully deterministic, that allows an 
+adversary with transcripts of all network traffic to verify any statements 
+using the transcripts.
+To thwart this we need to introduce randomness, i.e.~a common random secret.
 
-We begin by describing the development of the protcols and then identify 
-problems and suggest solutions to these problems.
-We then present the suggested solutions again together in a new protocol.
+Next we will describe the protcols and then identify the problems in detail.
+We then present solutions to these problems in a new protocol.
 
 
-\section{The \acs{otr} Messaging Protocol}
+\section{The \acs{OTR} Messaging Protocol}
 
-In this section, we will first summarize the original version of the \ac{otr} 
+In this section, we first summarize the original version of the \ac{OTR} 
 messaging protocol published in \cite{otr2004}.
-This will be followed by the improvements after the attack published in 
+This is followed by the improvements after the attack published in 
 \cite{di2005secure} and finally the TextSecure version of the protocol 
 \cite{frosch2014secure}.
 
-\subsection{\acs{otr} version 1 and 2 (and 3)}
+\subsection{\acs{OTR} Initialization}
 
-As described above, the purpose of the \ac{otr} protocol was to give an online 
+As described above, the purpose of the \ac{OTR} protocol was to give an online 
 conversation the properties of a face-to-face real-life conversation.
 The properties, and how they are achieved, are the following:
 \begin{description}
@@ -79,25 +90,25 @@ The properties, and how they are achieved, are the following:
     exponent will be signed.
 
   \item[Integrity and repudiation] for message content will be achieved by 
-    using \acp{mac}.
-    Since \acp{mac} does not provide non-repudiation, Alice can later repudiate 
+    using \acp{MAC}.
+    Since \acp{MAC} does not provide non-repudiation, Alice can later repudiate 
     sending a certain message as Bob has the means to forge it.
-	The \ac{mac} employed is HMAC \cite{hmac} using a SHA-algorithm \cite{shs}.
+    The \ac{MAC} employed is HMAC \cite{hmac} using a SHA-algorithm \cite{shs}.
     (SHA-1 was used originally, SHA256 subsequently.)
 
   \item[Forgeability and plausible deniability] of message content is achieved 
     by using malleable encryption \cite{nonmalleable}.
     This means that an adversary can do meaningful changes in the plaintext by 
     changing the ciphertext without knowing the key.
-    In the case of \ac{otr}, a stream cipher is employed, namely AES \cite{aes} 
+    In the case of \ac{OTR}, a stream cipher is employed, namely AES \cite{aes} 
     in counter mode \cite{blockmodes}.
 \end{description}
 
 The protocol is strictly two-party, so Alice and Bob can talk privately, but no 
-more people.
+more people can participate.
 The original protocol \cite{otr2004} is as follows.
 
-\begin{protocol}[\acs{otr} version 1 initialization]\label{proto:otr1init}
+\begin{protocol}[\acs{OTR} version 1 initialization]\label{proto:otr1init}
   Alice and Bob agree on a multiplicative group \(G\) and a generator \(g\in 
   G\).
   Alice has a signature and verification key-pair \((S_A, V_A)\) and Bob has 
@@ -107,8 +118,8 @@ The original protocol \cite{otr2004} is as follows.
   Bob chooses a random \(y_1\in \Z_{\ord G}\),
   and then they exchange the these:
   \begin{align*}
-    A\to B&\colon \sign_{S_A}( g^{x_1} ), V_A \\
-    B\to A&\colon \sign_{S_B}( g^{y_1} ), V_B,
+    A\to B&\colon \Sign_{S_A}( g^{x_1} ), V_A \\
+    B\to A&\colon \Sign_{S_B}( g^{y_1} ), V_B,
   \end{align*}
   which concludes the initialization.
   \qed
@@ -116,91 +127,35 @@ The original protocol \cite{otr2004} is as follows.
 
 Alice and Bob now has both \(g^{x_1}\in G\) and \(g^{y_1}\in G\) and can hence 
 compute \(g^{x_1 y_1}\in G\) which can be used as a key.
-Further, since the values are signed they can somewhat believe they are talking 
-to the right person.
-It is only \enquote{somewhat} since we will see an identity-misbinding attack 
-against this protocol later.
+Further, since the values are signed they can \enquote{somewhat} believe they 
+are talking to the right person.
+It is only \enquote{somewhat} since \citeauthor{di2005secure} 
+\cite{di2005secure} found an identity-misbinding attack against this protocol.  
 
-After initializing the session, Alice and Bob can start their conversation 
-exchanging messages \(M_1, M_2, \ldots\).
-This is done in the following way.
-
-\begin{protocol}[\acs{otr} version 1 communication]\label{proto:otr1comm}
-  Assume Alice has sent \(g^{x_i}\) to Bob and she has received \(g^{y_j}\) 
-  from Bob.
-  Futher, let \(H\) be a collision-resistant hash function.
-
-  When Alice wants to send a message \(m_k\) to Bob, she chooses a random 
-  \(x_{i+1}\in\Z_{\ord G}\) and sends
-  \begin{equation*}
-    A\to B\colon g^{x_{i+1}},
-      c_k = \enc_{g^{x_i y_j}}( k )\oplus m_k,
-      \mac_{H( g^{x_i y_j} )}( g^{x_{i+1}}, c_1 )
-  \end{equation*}
-  to Bob.
-
-  Later, when Bob wants to reply a messasge \(m_{k+1}\), he chooses a random 
-  \(y_{j+1}\in\Z_{\ord G}\) and the latest \(g^{x_{i+n}}\) received from Alice, 
-  and then sends
-  \begin{equation*}
-    B\to A\colon g^{y_{j+1}},
-    c_{k+1} = \enc_{g^{x_{i+n} y_j}}( k+1 )\oplus m_{k+1},
-    \mac_{H( g^{x_{i+n} y_j} )}( g^{y_{j+1}}, c_{k+1} )
-  \end{equation*}
-  to Alice.
-
-  Once Alice knows that a message sent to Bob has been received, she publishes 
-  the \ac{mac} key \( H( g^{x_i y_j} ) \) for that message as part of her next 
-  message.
-  \qed
-\end{protocol}
-
-We can see in Protocol \ref{proto:otr1comm} that we get a continuous 
-Diffie-Hellman exchange by using the transmission of each message for 
-exchanging the value to be used for the next message.
-Hence we never use the same key twice.
-We remain authenticated as well, since we provide authenticity to the next 
-Diffie-Hellman value using a keyed \ac{mac} with a previously authenticated 
-key.
-However, since the authentication is done using \acp{mac}, Bob can never prove 
-to anyone else what Alice has written.
-And after Alice publishes the \ac{mac} key, anyone can create messages which 
-authenticates using that \ac{mac} key.
-Thus, no one can use the \ac{mac} to verify the message in the future.
-
-For the perfect forward secrecy, we need Alice and Bob to forget the keys 
-\(g^{x_i y_j}\) as soon as possible.
-We observe that Alice needs to keep her secret values \(x_i, x_{i+1}, \ldots, 
-x_{i+n}\) until she has received a message from Bob using a newer value.
-If she does not, then she cannot decrypt any message from Bob using that value 
-in the key.
-
-\citeauthor{di2005secure} \cite{di2005secure} found an attack on the 
-initialization of this protocol (Protocol \ref{proto:otr1init}).
-The attack results in an identity misbinding, described in general in 
-\cite{ake}.
+The attack from \cite{di2005secure} results in an identity misbinding, 
+described in general in \cite{ake}.
 This means that Eve can make Alice believe she is talking to Bob while Bob 
 believes he is talking to Eve and Alice.
 Alice and Bob can compute the secret key, but not Eve, she can only get Bob to 
 believe he is talking to someone else.
 This is accomplished in the following manner:
 \begin{align*}
-  A\to E &\colon g^x, \sign_{S_A}( g^x ), V_A \\
-  E\to B &\colon g^x, \sign_{S_E}( g^x ), V_E \\
-  B\to E &\colon g^y, \sign_{S_B}( g^y ), V_B \\
-  E\to A &\colon g^y, \sign_{S_B}( g^y ), V_B \\
+  A\to E &\colon g^x, \Sign_{S_A}( g^x ), V_A \\
+  E\to B &\colon g^x, \Sign_{S_E}( g^x ), V_E \\
+  B\to E &\colon g^y, \Sign_{S_B}( g^y ), V_B \\
+  E\to A &\colon g^y, \Sign_{S_B}( g^y ), V_B \\
 \end{align*}
 The following solution is presented in \cite{di2005secure}:
 \begin{align*}
   A\to B &\colon g^{x} \\
   B\to A &\colon g^{y} \\
   A\to B &\colon A,
-    \sign_{S_A}( g^{y}, g^{x} ),
-    \mac_{H( g^{x y} )}( 0, A ),
+    \Sign_{S_A}( g^{y}, g^{x} ),
+    \MAC_{H( g^{x y} )}( 0, A ),
     V_A \\
   B\to A &\colon B,
-    \sign_{S_B}( g^{x}, g^{y} ),
-    \mac_{H( g^{x y} )}( 1, B ),
+    \Sign_{S_B}( g^{x}, g^{y} ),
+    \MAC_{H( g^{x y} )}( 1, B ),
     V_B \\
 \end{align*}
 This way, Alice and Bob authenticates over the secret \(g^{xy}\) which Eve does 
@@ -212,7 +167,7 @@ Another improvement added to this protocol was to hide the public keys of the
 participants from passive adversaries.
 The resulting authentication protocol follows as described in \cite{otr2007}.
 
-\begin{protocol}[Simplified \acs{otr} version 2 and 3 initialization]
+\begin{protocol}[Simplified \acs{OTR} version 2 and 3 initialization]
   \label{proto:otr2init}
   As in Protocol \ref{proto:otr1init}, Alice and Bob agree on a multiplicative 
   group \(G\) and a generator \(g\in G\).
@@ -220,57 +175,115 @@ The resulting authentication protocol follows as described in \cite{otr2007}.
   correspondingly \((S_B, V_B)\).
 
   Alice chooses a random key \(r\in \K\), from the keyspace of the encryption 
-  algorithm \(\enc\), and \(x_1\in \Z_{\ord G}\).
+  algorithm \(\Enc\), and \(x_1\in \Z_{\ord G}\).
   Bob chooses a random \(y_1\in \Z_{\ord G}\).
   Then they exchange the following:
   \begin{align*}
-    A\to B &\colon \enc_r( g^{x_1} ), H( g^{x_1} ) \\
+    A\to B &\colon \Enc_r( g^{x_1} ), H( g^{x_1} ) \\
     B\to A &\colon g^{y_1} \\
     A\to B &\colon r
   \end{align*}
 
-  Next, Alice and Bob derives \ac{mac} keys \(a_1, a_2, b_1, b_2\) and 
+  Next, Alice and Bob derives \ac{MAC} keys \(a_1, a_2, b_1, b_2\) and 
   encryption keys \(a_3, b_3\) from \(g^{x_1 y_1}\).
-  Alice computes \[M_A = \mac_{a_1}( g^{x_1}, g^{y_1}, V_A )\textand X_A 
-  = ( V_A, \sign_{S_A}( M_A ) ).\]
+  Alice computes \[M_A = \MAC_{a_1}( g^{x_1}, g^{y_1}, V_A )\textand X_A 
+  = ( V_A, \Sign_{S_A}( M_A ) ).\]
   She then sends
   \begin{align*}
-    A\to B\colon c = \enc_{a_3}( X_A ), \mac_{a_2}( c )
+    A\to B\colon c = \Enc_{a_3}( X_A ), \MAC_{a_2}( c )
   \end{align*}
   to Bob.
-  Bob verifies the received values and computes \[M_B = \mac_{b_1}( g^{y_1}, 
-  g^{x_1}, V_B )\textand X_B = ( V_B, \sign_{S_B}( M_B ) ).\]
+  Bob verifies the received values and computes \[M_B = \MAC_{b_1}( g^{y_1}, 
+  g^{x_1}, V_B )\textand X_B = ( V_B, \Sign_{S_B}( M_B ) ).\]
   He then sends
   \begin{align*}
-    B\to A\colon c^\prime = \enc_{b_3}( X_B ), \mac_{b_2}( c^\prime )
+    B\to A\colon c^\prime = \Enc_{b_3}( X_B ), \MAC_{b_2}( c^\prime )
   \end{align*}
   to Alice, who verifies the received values which concludes the 
   initialization.
   \qed
 \end{protocol}
 
+\subsection{\acs{OTR} Communication}
+
+After initializing the session, Alice and Bob can start their conversation 
+exchanging messages \(M_1, M_2, \ldots\).
+This is done in the following way.
+
+\begin{protocol}[\acs{OTR} version 1 communication]\label{proto:otr1comm}
+  Assume Alice has sent \(g^{x_i}\) to Bob and she has received \(g^{y_j}\) 
+  from Bob.
+  Futher, let \(H\) be a collision-resistant hash function.
+
+  When Alice wants to send a message \(m_k\) to Bob, she chooses a random 
+  \(x_{i+1}\in\Z_{\ord G}\) and sends
+  \begin{equation*}
+    A\to B\colon g^{x_{i+1}},
+      c_k = \Enc_{g^{x_i y_j}}( k )\oplus m_k,
+      \MAC_{H( g^{x_i y_j} )}( g^{x_{i+1}}, c_1 )
+  \end{equation*}
+  to Bob.
+
+  Later, when Bob wants to reply a messasge \(m_{k+1}\), he chooses a random 
+  \(y_{j+1}\in\Z_{\ord G}\) and the latest \(g^{x_{i+n}}\) received from Alice, 
+  and then sends
+  \begin{equation*}
+    B\to A\colon g^{y_{j+1}},
+    c_{k+1} = \Enc_{g^{x_{i+n} y_j}}( k+1 )\oplus m_{k+1},
+    \MAC_{H( g^{x_{i+n} y_j} )}( g^{y_{j+1}}, c_{k+1} )
+  \end{equation*}
+  to Alice.
+
+  Once Alice knows that a message sent to Bob has been received, she publishes 
+  the \ac{MAC} key \( H( g^{x_i y_j} ) \) for that message as part of her next 
+  message.
+  \qed
+\end{protocol}
+
+We can see in Protocol \ref{proto:otr1comm} that we get a continuous 
+Diffie-Hellman exchange by using the transmission of each message for 
+exchanging the value to be used for the next message.
+Hence we never use the same key twice.
+We remain authenticated as well, since we provide authenticity to the next 
+Diffie-Hellman value using a keyed \ac{MAC} with a previously authenticated 
+key.
+However, since the authentication is done using \acp{MAC}, Bob can never prove 
+to anyone else what Alice has written.
+And after Alice publishes the \ac{MAC} key, anyone can create messages which 
+authenticates using that \ac{MAC} key.
+Thus, no one can use the \ac{MAC} to verify the message in the future.
+
+For the perfect forward secrecy, we need Alice and Bob to forget the keys 
+\(g^{x_i y_j}\) as soon as possible.
+We observe that Alice needs to keep her secret values \(x_i, x_{i+1}, \ldots, 
+x_{i+n}\) until she has received a message from Bob using a newer value.
+If she does not, then she cannot decrypt any message from Bob using that value 
+in the key.
+
+\subsection{\acs{OTR} with Improved Authentication}
+
 \citeauthor{otr2007} \cite{otr2007} adds another authentication protocol to 
 this.
 Protocols \ref{proto:otr1init} and \ref{proto:otr2init} both requires Alice and 
 Bob to be able to verify each other's public key.
-To increase usability they add an adaption of the \ac{smp} \cite{smp} which 
+To increase usability they add an adaption of the \ac{SMP} \cite{smp} which 
 allows them to use a shared low-entropy secret to identify each other instead 
 of the fingerprints of their public keys.
 
-\subsection{\acs{otr} with Improved Authentication}
-
-\dots described in \cite{otr2007}.
+The protocol works as follows:
 
 \begin{protocol}[The Socialist Millionaires' Protocol]
   \dots
   \qed
 \end{protocol}
 
+\dots
+
 \subsection{TextSecure}
 
 The TextSecure protocol was first described and analysed by 
 \citeauthor{frosch2014secure} in \cite{frosch2014secure}.
-The TextSecure protocol builds on the \ac{otr} protocol, but it has made some 
+The TextSecure protocol builds on the \ac{OTR} protocol, but it has made some 
 changes to adapt it to the setting of smartphone messaging.
 
 \dots
@@ -302,7 +315,7 @@ changes to adapt it to the setting of smartphone messaging.
 
 \dots described in \cite{multiotr2009}.
 
-\begin{protocol}[Multi-Party \acs{otr}]
+\begin{protocol}[Multi-Party \acs{OTR}]
   \dots
   \qed
 \end{protocol}
@@ -314,7 +327,7 @@ The protocol does not consider the intelligence agency of a nation state as
 a possible adversary, which should be considered from what we know today.
 In this new adversarial setting, where Eve controls the network and can 
 possibly compromise a computer system at will, some of the properties in the 
-\ac{otr} protocol might no longer be valid.
+\ac{OTR} protocol might no longer be valid.
 More importantly, the nation state does not have to present non-repudiable 
 evidence to a third-party judge, it just has to convince itself.
 We argue that in this setting the algorithms employed in this protocol are 
@@ -322,7 +335,7 @@ We argue that in this setting the algorithms employed in this protocol are
 We will elaborate on this.
 
 The arguments in \cite{otr2004} for forgeability using malleable encryption and 
-publishing the \ac{mac} keys only hold if the adversary cannot trust the source 
+publishing the \ac{MAC} keys only hold if the adversary cannot trust the source 
 of the transcript.
 Using the adversary just described, she can ultimately trust the transcript 
 since she collected it herself from the network.
@@ -330,10 +343,10 @@ She then knows exactly which ciphertext Alice sent to Bob, and which ciphertext
 Bob replied.
 She knows the lengths of these ciphertexts and she knows the time they were 
 sent and the order in which they arrived.
-She knows the \acp{mac} for each ciphertext as well, and that Alice and Bob 
+She knows the \acp{MAC} for each ciphertext as well, and that Alice and Bob 
 sent them like this.
 She knows that Alice is the author of a message because she observes when Alice 
-publishes the \ac{mac} key.
+publishes the \ac{MAC} key.
 When Eve compromises Bob's system, she might be able to see some history of the 
 conversation in his client.
 She can then infer who wrote what thanks to the metadata in her records, e.g.\ 
@@ -342,20 +355,20 @@ Eve can also use author-identification techniques (anti-plagiarism tools) to
 detect Alice's writing style in the plaintexts found at Bob's.
 
 Furthermore, Eve also gets some information about the key from the ciphertext 
-and \ac{mac}.
-Eve can use the \ac{mac} to discard false keys for the cipher as in Algorithm 
+and \ac{MAC}.
+Eve can use the \ac{MAC} to discard false keys for the cipher as in Algorithm 
 \ref{alg:falsekeys}.
-Hence, by having the \ac{mac} key depend on the encryption key, we 
+Hence, by having the \ac{MAC} key depend on the encryption key, we 
 automatically decrease the number of spurious keys and thus also reduce our 
 possibility for deniability.
 This can be seen in the following equations:
 \begin{equation*}
-  \enc_k( m ) = c = \enc_{k^\prime}( m^\prime )
+  \Enc_k( m ) = c = \Enc_{k^\prime}( m^\prime )
 \end{equation*}
 and if \(k\neq k^\prime\) then
 \begin{equation*}
   \Pr\left[
-    \mac_{H(k)}( c ) = \mac_{H(k^\prime)}( c )
+    \MAC_{H(k)}( c ) = \MAC_{H(k^\prime)}( c )
   \right] < 1.
 \end{equation*}
 
@@ -366,19 +379,19 @@ and if \(k\neq k^\prime\) then
   \label{alg:falsekeys}
   \begin{algorithmic}
     \Function{IsTrueKey}{$C, M, k$}\Comment{%
-      Ciphertext $C$, \ac{mac} $M$, key $k$.
+      Ciphertext $C$, \ac{MAC} $M$, key $k$.
     }
-      \If{$\mac_{H(k)}( C ) = M$}
+      \If{$\MAC_{H(k)}( C ) = M$}
         \State \Return True
       \EndIf
       \State \Return False
     \EndFunction
     \Statex
-    \Function{Decrypt}{$C, M$}\Comment{Ciphertext $C$ and \ac{mac} $M$.}
+    \Function{Decrypt}{$C, M$}\Comment{Ciphertext $C$ and \ac{MAC} $M$.}
       \State Let $P = \emptyset$.
       \ForAll{$k\in \K$}\Comment{Keyspace $\K$}
         \If{\Call{IsTrueKey}{$C, M, k$}}
-          \State Append $\dec_k( C )$ to $P$.
+          \State Append $\Dec_k( C )$ to $P$.
         \EndIf
       \EndFor
       \State \Return $P$
@@ -388,23 +401,23 @@ and if \(k\neq k^\prime\) then
 
 The be able to get deniability in the given scenario, Alice and Bob need to be 
 able to modify the plaintext without modifying the ciphertext.
-This can be accomplished by using the \ac{otp}, since then you can easily 
+This can be accomplished by using the \ac{OTP}, since then you can easily 
 compute the key from a given plaintext-ciphertext pair.
 
-They also need a \ac{mac} key independent from the encryption key.
+They also need a \ac{MAC} key independent from the encryption key.
 Then they can change the encryption key and the plaintext, but the ciphertext 
-and \ac{mac} remains the same.
+and \ac{MAC} remains the same.
 Instead of using \(g^{xy}\in G\) and encryption key and \(H(g^{xy})\) as 
-\ac{mac} key, Alice and Bob can increase the size \(\ord G\) of the group \(G\) 
-and use the \(n\) least significant bits of \(g^{xy}\) for \ac{mac} and the 
+\ac{MAC} key, Alice and Bob can increase the size \(\ord G\) of the group \(G\) 
+and use the \(n\) least significant bits of \(g^{xy}\) for \ac{MAC} and the 
 rest for encryption.
 Choosing a group which gieves a keysize of 2048 bits, using 256 bits for 
-\ac{mac} leaves 1792 bits for encryption with \ac{otp}.
+\ac{MAC} leaves 1792 bits for encryption with \ac{OTP}.
 That is 224 bytes, which is larger than what Twitter allows for a tweet (140 
 characters).
-This way, when using the \ac{otp} they can keep the \ac{mac} key fixed while 
+This way, when using the \ac{OTP} they can keep the \ac{MAC} key fixed while 
 adapting the encryption key to their new plaintext, then hand the complete key 
-(both \ac{mac} and encryption) to the adversary.
+(both \ac{MAC} and encryption) to the adversary.
 
 The adversary Eve has two options for verifying whether a given key \(k\) is 
 true or false.
@@ -427,7 +440,7 @@ This might be possible if we can introduce some randomness in the transmission
 of \(g^x\) and \(g^y\).
 
 
-\section{A More Secure \acs{otr} Messaging Protocol}
+\section{A More Secure \acs{OTR} Messaging Protocol}
 
 One way of getting more possibilities for lying would be to introduce some 
 randomness in the Diffie-Hellman key exchange.
@@ -436,9 +449,9 @@ This randomness \(r\) must be easy to change in relation to the chosen exponent
 \(x^\prime\) in \(g^{x^\prime}\).
 
 
-\section{Using \acs{otr} Messaging in \acsp{osn}}
+\section{Using \acs{OTR} Messaging in \acsp{OSN}}
 
-In \acp{osn} like Facebook, people can still communicate through \ac{im}, but 
+In \acp{OSN} like Facebook, people can still communicate through \ac{IM}, but 
 this is not the main form of communication.
 Twitter is a good example of the new form of communication, where users 
 communicate by positing up-to-140-characters long messages to each other's 
