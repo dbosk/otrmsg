@@ -14,17 +14,6 @@ otrmsg.pdf: otrmsg.tex llncs
 otrmsg.pdf: otrmsg.bib surveillance.bib crypto.bib
 otrmsg.pdf: otrmsg-content.tex
 
-surveillance.bib: ../surveillance/surveillance.bib
-crypto.bib: ../crypto/crypto.bib
-
-FILES= 		surveillance.bib crypto.bib
-
-${FILES}:
-	${CP} $^ $@
-
-clean:
-	${RM} ${FILES}
-
 ### INCLUDES ###
 
 INCLUDES= 	depend.mk tex.mk pub.mk
