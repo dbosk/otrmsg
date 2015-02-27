@@ -260,24 +260,24 @@ x_{i+n}\) until she has received a message from Bob using a newer value.
 If she does not, then she cannot decrypt any message from Bob using that value 
 in the key.
 
-\subsection{\acs{OTR} with Improved Authentication}
-
-\citeauthor{otr2007} \cite{otr2007} adds another authentication protocol to 
-this.
-Protocols \ref{proto:otr1init} and \ref{proto:otr2init} both requires Alice and 
-Bob to be able to verify each other's public key.
-To increase usability they add an adaption of the \ac{SMP} \cite{smp} which 
-allows them to use a shared low-entropy secret to identify each other instead 
-of the fingerprints of their public keys.
-
-The protocol works as follows:
-
-\begin{protocol}[The Socialist Millionaires' Protocol]
-  \dots
-  \qed
-\end{protocol}
-
-\dots
+%\subsection{\acs{OTR} with Improved Authentication}
+%
+%\citeauthor{otr2007} \cite{otr2007} adds another authentication protocol to 
+%this.
+%Protocols \ref{proto:otr1init} and \ref{proto:otr2init} both requires Alice and 
+%Bob to be able to verify each other's public key.
+%To increase usability they add an adaption of the \ac{SMP} \cite{smp} which 
+%allows them to use a shared low-entropy secret to identify each other instead 
+%of the fingerprints of their public keys.
+%
+%The protocol works as follows:
+%
+%\begin{protocol}[The Socialist Millionaires' Protocol]
+%  \dots
+%  \qed
+%\end{protocol}
+%
+%\dots
 
 \subsection{TextSecure}
 
@@ -311,14 +311,14 @@ changes to adapt it to the setting of smartphone messaging.
 \dots
 
 
-\section{Multi-Party \acs{OTR}}
-
-\dots described in \cite{multiotr2009}.
-
-\begin{protocol}[Multi-Party \acs{OTR}]
-  \dots
-  \qed
-\end{protocol}
+%\section{Multi-Party \acs{OTR}}
+%
+%\dots described in \cite{multiotr2009}.
+%
+%\begin{protocol}[Multi-Party \acs{OTR}]
+%  \dots
+%  \qed
+%\end{protocol}
 
 
 \section{The Main Ideas}
@@ -377,6 +377,7 @@ and if \(k\neq k^\prime\) then
     Algorithm for finding possible plaintexts and discarding false keys.
   }
   \label{alg:falsekeys}
+  \hrulefill
   \begin{algorithmic}
     \Function{IsTrueKey}{$C, M, k$}\Comment{%
       Ciphertext $C$, \ac{MAC} $M$, key $k$.
@@ -386,6 +387,7 @@ and if \(k\neq k^\prime\) then
       \EndIf
       \State \Return False
     \EndFunction
+
     \Statex
     \Function{Decrypt}{$C, M$}\Comment{Ciphertext $C$ and \ac{MAC} $M$.}
       \State Let $P = \emptyset$.
@@ -397,6 +399,7 @@ and if \(k\neq k^\prime\) then
       \State \Return $P$
     \EndFunction
   \end{algorithmic}
+  \hrulefill
 \end{algorithm}
 
 The be able to get deniability in the given scenario, Alice and Bob need to be 
