@@ -11,8 +11,8 @@ PUB_METHOD-sys= 	ssh
 PUB_DIR-sys= 		~/public_html
 
 otrmsg.pdf: otrmsg.tex llncs
-otrmsg.pdf: otrmsg.bib surveillance.bib crypto.bib
 otrmsg.pdf: otrmsg-content.tex
+otrmsg.pdf: otrmsg.bib surveillance.bib crypto.bib
 
 ### INCLUDES ###
 

@@ -2,6 +2,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage[british]{babel}
+\usepackage{xparse}
 \usepackage{csquotes}
 \usepackage[natbib,style=alphabetic,maxbibnames=99,backend=bibtex8]{biblatex}
 \addbibresource{otrmsg.bib}
@@ -9,15 +10,28 @@
 \addbibresource{crypto.bib}
 
 \usepackage{filecontents}
+\usepackage{prettyref}
+\newrefformat{alg}{Algorithm \ref{#1}}
 
 \usepackage{acronym}
+% spy agencies
+\newacro{NSA}{National Security Agency}
+\newacro{GCHQ}{Government Communications Headquarters}
+\newacro{FRA}{National Defence Radio Establishment}
+
+% crypto
 \newacro{OTR}{Off-The-Record}
-\newacro{IM}{Instant Messaging}
-\newacro{OSN}{Online Social Network}
 \newacro{PFS}{Perfect Forward-Secrecy}
 \newacro{MAC}{Message Authentication Code}
 \newacro{SMP}{Socialist Millionaires' Problem}
 \newacro{OTP}{One-Time Pad}
+\newacro{DH}{Diffie-Hellman}
+\newacro{DHKE}{Diffie-Hellman Key-Exchange}
+\newacro{AKE}{Authenticated Key-Exchange}
+
+% social networks
+\newacro{OSN}{Online Social Network}
+\newacro{IM}{Instant Messaging}
 
 \usepackage{amsmath}
 \usepackage{amssymb}
@@ -33,8 +47,11 @@
 \usepackage[plain]{algorithm}
 \usepackage[noend]{algpseudocode}
 
+\NewDocumentCommand{\alg}{m}{%
+  \textsc{#1}%
+}
+
 \usepackage{marginnote}
-%\usepackage{todonotes}
 \usepackage{fixme}
 \fxusetheme{color}
 
