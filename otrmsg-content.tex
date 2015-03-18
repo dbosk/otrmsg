@@ -45,13 +45,13 @@ So today many technologies relies on it.
 
 The protocol is designed to provide the following properties:
 \begin{itemize}
-  \item confidentiality and perfect forward-secrecy,
+  \item confidentiality and \ac{PFS},
   \item authenticated communication with repudiation for the authentication 
     mechanism,
-  \item plausible deniability and forgeability for the contents.
+  \item plausible deniability and forgeability for the messages.
 \end{itemize}
-The \ac{NSA} and \ac{GCHQ} can (apparently) not break \ac{OTR} yet 
-\cite{spiegelotr}.
+The \ac{NSA} and \ac{GCHQ} can (apparently) not break the confidentiality of 
+\ac{OTR} yet \cite{spiegelotr}.
 But if we consider what we know of their capabilities, some of these properties 
 are \emph{possibly} no longer provided.
 Repudiation and plausible deniability cannot be achieved by this protocol 
@@ -98,9 +98,9 @@ We start with an overview of the properties and how they are achieved:
     will be signed.
 
   \item[Integrity and repudiation] for message content will be achieved by 
-    using \acp{MAC}.
-    Since \acp{MAC} does not provide non-repudiation, Alice can later repudiate 
-    sending a certain message as Bob has the means to forge it.
+    using \acp{crMAC}.
+    Since \acp{crMAC} does not provide non-repudiation, Alice can later 
+    repudiate sending a certain message as Bob has the means to forge it.
 
   \item[Forgeability and plausible deniability] of message content is achieved 
     by using malleable encryption \cite{nonmalleable}.
@@ -130,7 +130,7 @@ To communicate using \ac{OTR}, Alice and Bob first runs the protocol in
     A\to B &\colon r
   \end{align*}
 
-  Next, Alice and Bob derives \ac{MAC} keys \(f_{a,1}( g^{xy} ), f_{a,2}( 
+  Next, Alice and Bob derives \ac{crMAC} keys \(f_{a,1}( g^{xy} ), f_{a,2}( 
   g^{xy} ), f_{b,1}( g^{xy} ), f_{b,2}( g^{xy} )\) and encryption keys \(h_a( 
   g^{xy} ), h_b( g^{xy} )\) using some suitable one-way functions \(f_{a,1}, 
   f_{a,2}, f_{b,1}, f_{b,2}, h_a, h_b\).
@@ -174,22 +174,22 @@ This is accomplished in the following way:
   \begin{equation*}
     A\to B\colon g^{x_{i+1}},
     c_k = \Enc_{H_E( g^{x_i y_j} )}( k )\oplus m_k,
-      \MAC_{H_M( g^{x_i y_j} )}( g^{x_{i+1}}, c_k )
+    \MAC_{H_M( g^{x_i y_j} )}( g^{x_{i+1}}, c_k )
   \end{equation*}
   to Bob.
 
   Later, when Bob wants to reply a message \(m_{k+1}\), he chooses a random 
   \(y_{j+1}\in\Z_{\ord G}\) and the latest \(g^{x_{i+n}}\) received from Alice, 
   and then sends
-  \begin{equation*}
-    B\to A\colon g^{y_{j+1}},
-    c_{k+1} = \Enc_{H_E( g^{x_{i+n} y_j} )}( k+1 )\oplus m_{k+1},
-    \MAC_{H_M( g^{x_{i+n} y_j} )}( g^{y_{j+1}}, c_{k+1} )
-  \end{equation*}
+  \begin{align*}
+    B\to A\colon& g^{y_{j+1}}, c_{k+1} = \Enc_{H_E( g^{x_{i+n} y_j} )}( k+1 
+    )\oplus m_{k+1}, \\
+    & \MAC_{H_M( g^{x_{i+n} y_j} )}( g^{y_{j+1}}, c_{k+1} )
+  \end{align*}
   to Alice.
 
   Once Alice knows that a message sent to Bob has been received, she publishes 
-  the \ac{MAC} key \( H_M( g^{x_i y_j} ) \) for that message as part of her 
+  the \ac{crMAC} key \( H_M( g^{x_i y_j} ) \) for that message as part of her 
   next message.
   \qed
 \end{protocol}
@@ -199,15 +199,15 @@ by using the transmission of each message for exchanging the value to be used
 for the next message.
 Hence we never use the same key twice.
 We remain authenticated as well, since we provide authenticity for the next 
-\ac{DH} value using a \ac{MAC} keyed with a previously authenticated key.
-However, since the authentication is done using \acp{MAC}, Bob can never prove 
-to anyone else what Alice has written.
-And after Alice publishes the \ac{MAC} key, anyone can create messages which 
-authenticates using that \ac{MAC} key.
-Thus, no one can use the \ac{MAC} to verify the message in the future.
+\ac{DH} value using a \ac{crMAC} keyed with a previously authenticated key.
+However, since the authentication is done using \acp{crMAC}, Bob can never 
+prove to anyone else what Alice has written.
+And after Alice publishes the \ac{crMAC} key, anyone can create messages which 
+authenticates using that \ac{crMAC} key.
+Thus, no one can use the \ac{crMAC} to verify the message in the future.
 
-For the perfect forward secrecy, we need Alice and Bob to forget the keys 
-\(g^{x_i y_j}\) as soon as possible.
+For the \ac{PFS}, we need Alice and Bob to forget the keys \(g^{x_i y_j}\) as 
+soon as possible.
 We observe that Alice must keep her secret values \(x_i, x_{i+1}, \ldots, 
 x_{i+n}\) until she has received a message from Bob using a newer value.
 If she does not, then she cannot decrypt any message from Bob using that value 
@@ -234,7 +234,7 @@ We will elaborate on this.
 \subsection{Verifying who sent what}
 
 The arguments of \citet{otr2004} for forgeability using malleable encryption 
-and publishing the \ac{MAC} keys only hold if the adversary cannot trust the 
+and publishing the \ac{crMAC} keys only hold if the adversary cannot trust the 
 source of the transcript.
 The more powerful Eve can ultimately trust the transcript since she collected 
 it herself from the network.
@@ -244,10 +244,13 @@ Bob replied.
 In this setting the forgeability property vanishes.
 Eve knows that no one has modified the ciphertext, she recorded in her 
 transcript as it left Alice and arrived to Bob.
-She also recorded Alice publishing the \ac{MAC} key used for the signature.
-This allows Eve to use the \ac{MAC} for each ciphertext to verify them.
+She also recorded Alice publishing the \ac{crMAC} key used for the signature.
+This allows Eve to use the \ac{crMAC} for each ciphertext to verify them.
 She knows that Alice is the author of a message because she observes when Alice 
-publishes the \ac{MAC} key.
+publishes the \ac{crMAC} key.
+
+The fact that Eve maintains this transcript is clear from \cite{spiegelotr}, 
+which is exactly such a transcript.
 
 \subsection{Verifying plaintext on compromise of a system}
 
@@ -264,11 +267,11 @@ style in the plaintexts found at Bob's.)
 \subsection{Verifying encryption keys}
 
 Furthermore, Eve also learns some information about the key from the ciphertext 
-and \ac{MAC}.
-Eve can use the \ac{MAC} to discard false keys for the ciphertext.
+and \ac{crMAC}.
+Eve can use the \ac{crMAC} to discard false keys for the ciphertext.
 A simple algorithm is presented as \alg{IsTrueKey} in 
 \prettyref{alg:falsekeys}.
-Hence, by having the \ac{MAC} key depend on the encryption key, we 
+Hence, by having the \ac{crMAC} key depend on the encryption key, we 
 automatically decrease the number of spurious keys and thus also reduce our 
 possibility for deniability.
 
@@ -280,7 +283,7 @@ possibility for deniability.
   \hrulefill
   \begin{algorithmic}
     \Function{IsTrueKey}{$C, M, k$}\Comment{%
-      Ciphertext $C$, \ac{MAC} $M$, key $k$.
+      Ciphertext $C$, \ac{crMAC} $M$, key $k$.
     }
       \If{$\MAC_{H(k)}( C ) = M$}
         \State \Return True
@@ -289,7 +292,7 @@ possibility for deniability.
     \EndFunction
 
     \Statex
-    \Function{Decrypt}{$C, M$}\Comment{Ciphertext $C$ and \ac{MAC} $M$.}
+    \Function{Decrypt}{$C, M$}\Comment{Ciphertext $C$ and \ac{crMAC} $M$.}
       \State Let $P = \emptyset$.
       \ForAll{$k\in \K$}\Comment{Keyspace $\K$}
         \If{\Call{IsTrueKey}{$C, M, k$}}
@@ -301,6 +304,10 @@ possibility for deniability.
   \end{algorithmic}
   \hrulefill
 \end{algorithm}
+
+The time complexity for the function \alg{Decrypt} in \prettyref{alg:falsekeys} 
+depends on the size of the key-space, \(O(\card\K)\), and is still much too 
+large.
 
 \subsection{Impossibility of deniability}
 
@@ -314,11 +321,14 @@ and \(k\neq k^\prime\), then
 \begin{equation*}
   \Pr\left[
     \MAC_{H_M(k)}( c ) = \MAC_{H_M(k^\prime)}( c )
-  \right] =
+  \right]
+  \approx
   \Pr\left[ H_M(k) = H_M(k^\prime) \right].
 \end{equation*}
 I.e.~our chance of lying about the key \(k\), replacing it with a key 
 \(k^\prime\), is reduced to finding a collision for the hash function \(H_M\).
+(There is also the negligible probability of \(\MAC_x(c) = \MAC_{x^\prime}(c)\) 
+for \(x\neq x^\prime\).)
 
 Furthermore, we find the key \(k^\prime\) by finding the preimage of \(H_E( 
 k^\prime )\).
@@ -326,14 +336,19 @@ And if the encryption system \(\Enc\) is known-plaintext resistant, then we
 will first have a hard time even finding \(H_E( k^\prime )\) before we can 
 attempt finding its preimage.
 
+With above reasoning, we have showed that \ac{OTR} cannot be deniable according 
+to the definition of \cite{deniablecrypt}: there cannot exist any 
+polynomial-time algorithm \(\phi\) which returns the key \(k^\prime\), hence it 
+cannot be deniable.
+
 
 \section{Achieving deniability}
 
 To be able to get deniability in the given scenario, Alice and Bob need to be 
 able to modify the plaintext without modifying the ciphertext.
-They also need a \ac{MAC} key independent from the encryption key.
+They also need a \ac{crMAC} key independent from the encryption key.
 Then they can change the encryption key and the plaintext, but the ciphertext 
-and \ac{MAC} remains the same.
+and \ac{crMAC} remains the same.
 
 \subsection{Making it easy to find \(k^\prime\)}
 
@@ -342,20 +357,26 @@ attacks is \ac{OTP}.
 If \(\Enc\) used above would be replaced with \ac{OTP}, then you can easily 
 compute the false key \(k^\prime\) from a given plaintext-ciphertext pair.
 
+There is also the possibility of constructing a system composed of several hard 
+problems, e.g.~factorization and discrete logarithms.
+Then adjusting one of the secrets while keeping the other fixed \emph{might} 
+allow you to compute a new key without the system being vulnerable to 
+known-plaintext attacks.
+
 \subsection{Increasing the number of spurious keys}
 
-We also want to resolve the problem of tying our hands with the \ac{MAC}.
+We also want to resolve the problem of tying our hands with the \ac{crMAC}.
 Instead of using deriving the keys from \(g^{xy}\in G\) as \(H_E(g^{xy})\) for 
-encryption and \(H_M(g^{xy})\) for \ac{MAC}, Alice and Bob can increase the 
+encryption and \(H_M(g^{xy})\) for \ac{crMAC}, Alice and Bob can increase the 
 size \(\ord G\) of the group \(G\) and use the \(n\) least significant bits of 
-\(g^{xy}\) for \ac{MAC} and the rest for encryption.
+\(g^{xy}\) for \ac{crMAC} and the rest for encryption.
 Choosing a group which gives a key-size of 2048 bits, using 256 bits for 
-\ac{MAC} leaves 1792 bits for encryption with \ac{OTP}.
+\ac{crMAC} leaves 1792 bits for encryption with \ac{OTP}.
 That is 224 bytes, which is larger than what Twitter allows for a tweet (140 
 characters).
-This way, when using the \ac{OTP} they can keep the \ac{MAC} key fixed while 
+This way, when using the \ac{OTP} they can keep the \ac{crMAC} key fixed while 
 adapting the encryption key to their new plaintext, then hand the complete key 
-(both \ac{MAC} and encryption) to the adversary.
+(both \ac{crMAC} and encryption) to the adversary.
 
 \subsection{The remaining verification problem}
 
@@ -372,7 +393,7 @@ However, it can be argued that this is the case already with the current
 protocol.
 The only difference is that Alice and Bob cannot give Eve any key to 
 \enquote{prove their innocence}, they can just deny because they do not 
-remember the keys due to perfect forward secrecy.
+remember the keys due to \ac{PFS}.
 
 \subsection{Randomizing the \acs{DHKE}}\label{sec:random}
 
@@ -384,29 +405,45 @@ This randomness \(r\) must be easy to change in relation to the chosen exponent
 \(x\), so that we afterwards can adjust the \(r\) to the change from \(x\) to 
 \(x^\prime\) in \(g^{x^\prime}\).
 
-This should be impossible to achieve without any previously shared common 
-randomness.
+This should be impossible to achieve without any previously shared randomness.
 The reason for this is that Eve can see everything that Bob can.
 
+Can we prove that it is impossible to randomize \ac{DH}?
 
-%\section{Using \acs{OTR} Messaging in \acsp{OSN}}
-%
-%In \acp{OSN} like Facebook, people can still communicate through \ac{IM}, but 
-%this is not the main form of communication.
-%Twitter is a good example of the new form of communication, where users 
-%communicate by positing up-to-140-characters long messages to each other's 
-%feeds.
-%This means more asynchronous communication.
-%And the same applies for smartphones, with the exception that Twitter feeds are 
-%always public.
-%This was the motivation for TextSecure \cite{TSasynch}.
-%
-%An \ac{OTR} message is not secure until a round is finished.
-%In an \ac{IM} conversation these rounds may be rather short.
-%But in more asynchronous communication like text messaging (SMS), the delays 
-%are much longer.
-%
-%\dots
+If we use pre-shared randomness, then for how long can we lie about the keys?
+Are there different trade-offs?
+
+The randomness cannot be extended by a \acp{PRF}.
+
+\subsection{Replacing \acs{DHKE}}
+
+Can we replace \ac{DHKE} with something else?
+If so, what properties do we get?
+
+
+\section{Using \acs{OTR} Messaging in \acsp{OSN}}
+
+In \acp{OSN} like Facebook, people can still communicate through \ac{IM}, but 
+this is not the main form of communication.
+Twitter is a good example of the new form of communication, where users 
+communicate by positing up-to-140-characters long messages to each other's 
+feeds.
+This means more asynchronous communication.
+And the same applies for smartphones, with the exception that Twitter feeds are 
+always public.
+This was the motivation for TextSecure \cite{TSasynch}.
+
+An \ac{OTR} message is not secure until a round is finished, since the keys 
+cannot be forgotten respectively published before the round is finished.
+In an \ac{IM} conversation these rounds may be rather short.
+But in more asynchronous communication like text messaging (SMS), the delays 
+are much longer.
+In these settings the requirement for deniability is even higher.
+
+
+\section*{Acknowledgements}
+
+This work was supported by the SSF.
 
 
 %\begin{filecontents}{otrmsg.submission.bbl}
