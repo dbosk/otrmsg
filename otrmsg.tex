@@ -1,7 +1,8 @@
-\documentclass[draft]{llncs}
+\documentclass[draft,a4paper]{llncs}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage[british]{babel}
+\usepackage{fixltx2e}
 \usepackage{xparse}
 \usepackage{csquotes}
 \usepackage[natbib,style=alphabetic,maxbibnames=99,backend=bibtex8]{biblatex}
@@ -14,24 +15,9 @@
 \newrefformat{alg}{Algorithm \ref{#1}}
 
 \usepackage{acronym}
-% spy agencies
-\newacro{NSA}{National Security Agency}
-\newacro{GCHQ}{Government Communications Headquarters}
-\newacro{FRA}{National Defence Radio Establishment}
-
-% crypto
-\newacro{OTR}{Off-The-Record}
-\newacro{PFS}{Perfect Forward-Secrecy}
-\newacro{MAC}{Message Authentication Code}
-\newacro{SMP}{Socialist Millionaires' Problem}
-\newacro{OTP}{One-Time Pad}
-\newacro{DH}{Diffie-Hellman}
-\newacro{DHKE}{Diffie-Hellman Key-Exchange}
-\newacro{AKE}{Authenticated Key-Exchange}
-
-% social networks
-\newacro{OSN}{Online Social Network}
-\newacro{IM}{Instant Messaging}
+\input{surveillance.acr}
+\input{crypto.acr}
+\input{stdterm.acr}
 
 \usepackage{amsmath}
 \usepackage{amssymb}
@@ -39,9 +25,11 @@
 \DeclareMathOperator{\Enc}{\mathrm{Enc}}
 \DeclareMathOperator{\Dec}{\mathrm{Dec}}
 \DeclareMathOperator{\MAC}{\mathrm{MAC}}
-\newcommand{\ord}[1]{|#1|}
-\DeclareMathOperator{\Z}{\mathbb Z}
-\DeclareMathOperator{\K}{\mathcal K}
+%\NewDocumentCommand{\ord}{m}{\ensuremath |#1|}
+\DeclareMathOperator{\ord}{ord}
+\NewDocumentCommand{\card}{m}{\ensuremath |#1|}
+\NewDocumentCommand{\Z}{}{\ensuremath \mathbb Z}
+\NewDocumentCommand{\K}{}{\ensuremath \mathcal K}
 \DeclareMathOperator{\textand}{\qquad and\qquad}
 
 \usepackage[plain]{algorithm}

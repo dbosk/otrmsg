@@ -10,19 +10,20 @@ PUB_SERVER-sys= 	sftp.sys.kth.se
 PUB_METHOD-sys= 	ssh
 PUB_DIR-sys= 		~/public_html
 
-otrmsg.pdf: otrmsg.tex llncs
+USE_LATEXMK= 		yes
+USE_BIBLATEX= 		yes
+
+otrmsg.pdf: otrmsg.tex llncs biblatex-lncs
 otrmsg.pdf: otrmsg-content.tex
 otrmsg.pdf: otrmsg.bib surveillance.bib crypto.bib
+otrmsg.pdf: crypto.acr surveillance.acr stdterm.acr
+
+makefiles libbib:
+	git submodule update --init $@
 
 ### INCLUDES ###
 
-INCLUDES= 	depend.mk tex.mk pub.mk
-
-define inc
-ifeq ($(findstring $(1),${MAKEFILE_LIST}),)
-$(1):
-	wget https://raw.githubusercontent.com/dbosk/makefiles/master/$(1)
-include $(1)
-endif
-endef
-$(foreach i,${INCLUDES},$(eval $(call inc,$i)))
+include libbib/libbib.mk
+include makefiles/depend.mk
+include makefiles/tex.mk
+include makefiles/pub.mk
