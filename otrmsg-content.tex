@@ -2,18 +2,19 @@
   On the Deniability of Off-The-Record Messaging
 }
 \author{%
-  Daniel Bosk
+  Daniel Bosk \and
+  Sonja Buchegger
 }
 \institute{%
   School of Computer Science and Communication\\
   KTH Royal Institute of Technology\\
-  \email{dbosk@kth.se}
+  Email: \email{\{dbosk,buc\}@kth.se}
 }
 
 \maketitle
-\begin{abstract}
-  \dots
-\end{abstract}
+%\begin{abstract}
+%  \dots
+%\end{abstract}
 
 
 \acresetall
@@ -77,9 +78,6 @@ None yet \dots
 In this section, we summarize the original version of the \ac{OTR} messaging 
 protocol published in \cite{otr2004} together with the improvements from 
 \cite{di2005secure}.
-The description is divided into two parts: initialization and communication.
-
-\subsection{\acs{OTR} initialization}
 
 As described above, the purpose of the \ac{OTR} protocol was to give an online 
 conversation the properties of a face-to-face real-life conversation.
@@ -111,6 +109,11 @@ We start with an overview of the properties and how they are achieved:
 
 The protocol is strictly two-party, so Alice and Bob can talk privately, but no 
 more people can participate.
+The description of the protocol is divided into two parts: initialization and 
+communication.
+
+\subsection{\acs{OTR} initialization}
+
 To communicate using \ac{OTR}, Alice and Bob first runs the protocol in 
 \prettyref{proto:otrinit}.
 
