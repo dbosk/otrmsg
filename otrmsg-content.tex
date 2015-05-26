@@ -2,11 +2,12 @@
   On the Deniability of Off-The-Record Messaging
 }
 \author{%
-  Daniel Bosk \and
+  Daniel Bosk
+  \and
   Sonja Buchegger
 }
 \institute{%
-  School of Computer Science and Communication\\
+  School of Computer Science and Communication,\\
   KTH Royal Institute of Technology\\
   Email: \email{\{dbosk,buc\}@kth.se}
 }
@@ -67,12 +68,12 @@ To thwart this we need truly deniable encryption, as defined by
 \citet{deniablecrypt}, which means that we need to introduce some randomness.
 We cover this in \prettyref{sec:random}.
 
-\subsection{Our contributions}
+\subsection{Our Contributions}
 
 None yet \dots
 
 
-\section{The \acs{OTR} messaging protocol}
+\section{The \acs{OTR} Messaging Protocol}
 \label{sec:otr}
 
 In this section, we summarize the original version of the \ac{OTR} messaging 
@@ -112,7 +113,7 @@ more people can participate.
 The description of the protocol is divided into two parts: initialization and 
 communication.
 
-\subsection{\acs{OTR} initialization}
+\subsection{\acs{OTR} Initialization}
 
 To communicate using \ac{OTR}, Alice and Bob first runs the protocol in 
 \prettyref{proto:otrinit}.
@@ -161,7 +162,7 @@ compute \(g^{x_1 y_1}\in G\) which can be used to derive keys.
 Further, since the key exchange protocol is authenticated they can believe they 
 are talking to the right person.
 
-\subsection{\acs{OTR} communication}
+\subsection{\acs{OTR} Communication}
 
 After initializing the session, Alice and Bob can start their conversation 
 exchanging messages \(m_1, m_2, \ldots, m_n\).
@@ -217,7 +218,7 @@ If she does not, then she cannot decrypt any message from Bob using that value
 in the key.
 
 
-\section{Why Alice and Bob must forget their conversation}
+\section{Why Alice and Bob Must Forget Their Conversation}
 \label{sec:otrattacks}
 
 The protocol does not consider the intelligence agency of a nation state as 
@@ -234,7 +235,7 @@ We argue that in this setting the algorithms employed in the \ac{OTR} protocol
 are \enquote{too secure} for our own good.
 We will elaborate on this.
 
-\subsection{Verifying who sent what}
+\subsection{Verifying Who Sent What}
 
 The arguments of \citet{otr2004} for forgeability using malleable encryption 
 and publishing the \ac{crMAC} keys only hold if the adversary cannot trust the 
@@ -255,7 +256,7 @@ publishes the \ac{crMAC} key.
 The fact that Eve maintains this transcript is clear from \cite{spiegelotr}, 
 which is exactly such a transcript.
 
-\subsection{Verifying plaintext on compromise of a system}
+\subsection{Verifying Plaintext on Compromise of a System}
 
 In addition to knowing who sent what ciphertext, Eve knows the lengths of these 
 ciphertexts and she knows the time they were sent and the order in which they 
@@ -267,7 +268,7 @@ e.g.~message length and ordering.
 (Eve can also use author-identification techniques to detect Alice's writing 
 style in the plaintexts found at Bob's.)
 
-\subsection{Verifying encryption keys}
+\subsection{Verifying Encryption Keys}
 
 Furthermore, Eve also learns some information about the key from the ciphertext 
 and \ac{crMAC}.
@@ -312,7 +313,7 @@ The time complexity for the function \alg{Decrypt} in \prettyref{alg:falsekeys}
 depends on the size of the key-space, \(O(\card\K)\), and is still much too 
 large.
 
-\subsection{Impossibility of deniability}
+\subsection{How Impossible Is Deniability?}
 
 As suggested above, we have hard times achieving deniability.
 This is illustrated by the following equations:
@@ -345,7 +346,7 @@ polynomial-time algorithm \(\phi\) which returns the key \(k^\prime\), hence it
 cannot be deniable.
 
 
-\section{Achieving deniability}
+\section{Achieving Deniability}
 
 To be able to get deniability in the given scenario, Alice and Bob need to be 
 able to modify the plaintext without modifying the ciphertext.
@@ -353,7 +354,7 @@ They also need a \ac{crMAC} key independent from the encryption key.
 Then they can change the encryption key and the plaintext, but the ciphertext 
 and \ac{crMAC} remains the same.
 
-\subsection{Making it easy to find \(k^\prime\)}
+\subsection{Making It Easy to Find \(k^\prime\)}
 
 The first encryption system that comes to mind when thinking of known-plaintext 
 attacks is \ac{OTP}.
@@ -366,7 +367,7 @@ Then adjusting one of the secrets while keeping the other fixed \emph{might}
 allow you to compute a new key without the system being vulnerable to 
 known-plaintext attacks.
 
-\subsection{Increasing the number of spurious keys}
+\subsection{Increasing the Number of Spurious Keys}
 
 We also want to resolve the problem of tying our hands with the \ac{crMAC}.
 Instead of using deriving the keys from \(g^{xy}\in G\) as \(H_E(g^{xy})\) for 
@@ -381,7 +382,7 @@ This way, when using the \ac{OTP} they can keep the \ac{crMAC} key fixed while
 adapting the encryption key to their new plaintext, then hand the complete key 
 (both \ac{crMAC} and encryption) to the adversary.
 
-\subsection{The remaining verification problem}
+\subsection{The Remaining Verification Problem}
 
 The adversary Eve has now two options for verifying whether a given key \(k\) 
 is true or false.
@@ -413,18 +414,13 @@ The reason for this is that Eve can see everything that Bob can.
 
 Can we prove that it is impossible to randomize \ac{DH}?
 
-If we use pre-shared randomness, then for how long can we lie about the keys?
-Are there different trade-offs?
-
-The randomness cannot be extended by a \acp{PRF}.
-
 \subsection{Replacing \acs{DHKE}}
 
 Can we replace \ac{DHKE} with something else?
 If so, what properties do we get?
 
 
-\section{Using \acs{OTR} Messaging in \acsp{OSN}}
+\section{A Work-Around}
 
 In \acp{OSN} like Facebook, people can still communicate through \ac{IM}, but 
 this is not the main form of communication.
@@ -443,10 +439,40 @@ But in more asynchronous communication like text messaging (SMS), the delays
 are much longer.
 In these settings the requirement for deniability is even higher.
 
+A work-around is to use pre-shared randomness.
+The randomness cannot be extended by a \acp{PRF}: if we do, then we are in the 
+same situation as when using AES.
+We could generate and exchange this randomness using the \ac{NFC} possibilities 
+of smartphones.
+Then we could use the everyday chance-encounters for exchanging randomness 
+which we use in the \ac{OTP} scheme when physically apart.
 
-\section*{Acknowledgements}
+How much randomness can we generate and exchange during these chance 
+encounters?
+The first question is: how much random data can we generate and exchange 
+without decreasing usability?
+I.e.~taking too long or draining battery life.
 
-This work was supported by the SSF.
+We can take several approaches:
+\begin{itemize}
+  \item if the \ac{NFC} transmission rate is good, then we can continously 
+    generate random data for a contact, then exchange all pregenerated data at 
+    meeting;
+  \item otherwise we can generate and exchange data at the same time at 
+    meeting.
+\end{itemize}
+
+
+\section{Conclusions}
+
+\dots
+
+
+\subsubsection*{Acknowledgements}
+
+This work was funded by the Swedish Foundation for Strategic Research grant SSF 
+FFL09-0086 and the Swedish Research Council grant VR 2009-3793.
+We would like to thank the anonymous reviewer for valuable feedback.
 
 
 %\begin{filecontents}{otrmsg.submission.bbl}
