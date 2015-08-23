@@ -1,29 +1,19 @@
-PUB_SITES?=			csc sys
-PUB_FILES= 			otrmsg.pdf
-PUB_CATEGORY= 		
+.PHONY: all
+all: otrmsg-paper.pdf otrmsg-slides.pdf
 
-PUB_SERVER-csc= 	u-shell.csc.kth.se
-PUB_METHOD-csc= 	ssh
-PUB_DIR-csc= 		~/public_html
+OTRMSG+= 	otrmsg-content.tex otrmsg-preamble.tex biblatex-lncs
+OTRMSG+= 	otrmsg.bib surveillance.bib crypto.bib
+OTRMSG+= 	libbib.sty
 
-PUB_SERVER-sys= 	sftp.sys.kth.se
-PUB_METHOD-sys= 	ssh
-PUB_DIR-sys= 		~/public_html
-
-USE_LATEXMK= 		yes
-USE_BIBLATEX= 		yes
-
-otrmsg.pdf: otrmsg.tex llncs biblatex-lncs
-otrmsg.pdf: otrmsg-content.tex
-otrmsg.pdf: otrmsg.bib surveillance.bib crypto.bib
-otrmsg.pdf: crypto.acr surveillance.acr stdterm.acr
+otrmsg-paper.pdf: otrmsg-paper.tex ${OTRMSG} llncs
+otrmsg-slides.pdf: otrmsg-slides.tex ${OTRMSG}
 
 makefiles libbib:
 	git submodule update --init $@
 
 ### INCLUDES ###
 
-include libbib/libbib.mk
-include makefiles/depend.mk
-include makefiles/tex.mk
-include makefiles/pub.mk
+INCLUDE_MAKEFILES=makefiles
+include ${INCLUDE_MAKEFILES}/tex.mk
+INCLUDE_LIBBIB=libbib
+include ${INCLUDE_LIBBIB}/libbib.mk

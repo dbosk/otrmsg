@@ -1,0 +1,34 @@
+%\documentclass{llncs}
+\documentclass[draft]{llncs}
+\pagestyle{plain}
+
+\usepackage[hyphens]{url}
+\usepackage[hidelinks]{hyperref}
+
+%\newcommand*{\newlinecommand}[2]{%
+%  \newcommand*{#1}{%
+%    \begingroup%
+%    \escapechar=`\\%
+%    \catcode\endlinechar=\active%
+%    \csname\string#1\endcsname%
+%  }%
+%  \begingroup%
+%  \escapechar=`\\%
+%  \lccode`\~=\endlinechar%
+%  \lowercase{%
+%    \expandafter\endgroup
+%    \expandafter\def\csname\string#1\endcsname##1~%
+%  }{\endgroup#2\space}%
+%}
+%\newlinecommand{\ProvidesPackageRCS}{\relax}
+
+\input{otrmsg-preamble.tex}
+
+\usepackage[noxcolor,noamsthm,notheorems,nokeywords]{beamerarticle}
+\setjobnamebeamerversion{otrmsg-slides}
+
+\spnewtheorem{protocol}{Protocol}{\bfseries}{\normalfont}
+
+\begin{document}
+\include{otrmsg-content}
+\end{document}

@@ -1,0 +1,29 @@
+\documentclass[ignorenonframetext]{beamer}
+%\documentclass[handout,ignorenonframetext]{beamer}
+%\usepackage{pgfpages}
+%\pgfpagesuselayout{4 on 1}[a4paper,border shrink=5mm]
+
+\usetheme{Frankfurt}
+\setbeamercovered{transparent}
+\usecolortheme{seagull}
+\setbeamertemplate{footline}{\insertframenumber}
+
+\AtBeginSection[]{%
+  \begin{frame}<beamer>{Overview}
+    \tableofcontents[currentsection]
+  \end{frame}
+}
+
+\setbeamertemplate{bibliography item}[text]
+
+\let\email\texttt
+
+\newtheorem{protocol}{Protocol}
+
+\input{otrmsg-preamble.tex}
+
+\begin{document}
+\mode<all>
+\input{otrmsg-content.tex}
+\mode*
+\end{document}

@@ -1,0 +1,36 @@
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{fixltx2e}
+\usepackage{xparse}
+\usepackage[british]{babel}
+\usepackage[fulladjust]{marginnote}
+\usepackage[underline=false]{pgf-umlsd}
+\usepackage[strict]{csquotes}
+
+\usepackage[algebra,crypto,surveillance,stdterm]{libbib}
+
+\usepackage[natbib,style=lncs]{biblatex}
+\addbibresource{otrmsg.bib}
+\addbibresource{surveillance.bib}
+\addbibresource{crypto.bib}
+
+\usepackage{prettyref}
+\newrefformat{alg}{Alg.~\ref{#1}}
+\newrefformat{prot}{Prot.~\ref{#1}}
+\newrefformat{sec}{Sect.~\ref{#1}}
+\newrefformat{fig}{Fig.~\ref{#1}}
+\newrefformat{tab}{Tab.~\ref{#1}}
+\newrefformat{tbl}{Tab.~\ref{#1}}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\NewDocumentCommand{\Z}{}{\ensuremath{\mathbb Z}}
+\NewDocumentCommand{\K}{}{\ensuremath{\mathcal K}}
+\DeclareMathOperator{\textand}{\qquad and\qquad}
+
+\usepackage[plain]{algorithm}
+\usepackage[noend]{algpseudocode}
+\NewDocumentCommand{\alg}{m}{%
+  \textsc{#1}%
+}
+
