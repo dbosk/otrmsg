@@ -1,5 +1,6 @@
 \title[Deniability of OTR]{%
-  On the Deniability of Off-The-Record Messaging
+  On the Off-The-Record Messaging Protocol
+  and Deniability
 }
 \author[D.~Bosk]{%
   Daniel Bosk
@@ -53,13 +54,26 @@
 \acresetall{}
 \section{Introduction}
 
-% XXX rewrite intro, fetch from surveillance reflections
-In 2013, Edward Snowden~\cite{landau2013making} revealed the capabilities of 
-the \ac{NSA}, \ac{GCHQ} and their collaborators~\cite[e.g.][]{nsa1,nsa2}.
-That showed the techniques considered possible to use against high-value 
-targets now, were routinely used against not only all targets, but against all 
-citizens of the world.
-In light of this, we should reconsider Eve's capabilities.
+\mode<presentation>{%
+  \subsection{History}
+  \begin{frame}{History of OTR}
+    \begin{itemize}
+      \item \acf{OTR} was published in 2004~\cite{otr2004}.
+
+      \item Designed for strong privacy properties.
+
+        \pause{}
+
+      \item Improved usability in 2007~\cite{otr2007}.
+
+      \item Uses the Socialist Millionaires Problem.
+
+        \pause{}
+
+      \item Adapted in 2010 for the TextSecure app~\cite{textsecure}.
+    \end{itemize}
+  \end{frame}
+}
 
 In 2004, \citeauthor{otr2004}~\cite{otr2004} first described the \ac{OTR} 
 messaging protocol.
@@ -77,45 +91,96 @@ protocol for use in the smartphone text-messaging app TextSecure
 \cite{textsecure}.
 So today many technologies relies on it.
 
+\mode<presentation>{%
+  \subsection{Properties}
+}
+
+\begin{frame}
+  \mode<presentation>{\frametitle{OTR's Properties}}
 The protocol is designed to provide the following properties:
 \begin{itemize}
+  \mode<article>{%
   \item confidentiality and \ac{PFS},
+  }\mode<presentation>{%
+  \item confidentiality and \acf{PFS},
+  }
+    \pause{}
   \item authenticated communication with repudiation for the authentication 
     mechanism,
+    \pause{}
   \item plausible deniability and forgeability for the messages.
 \end{itemize}
+\end{frame}
 The \ac{NSA} and \ac{GCHQ} can (apparently) not break the confidentiality of 
 \ac{OTR} yet~\cite{spiegelotr}.
 But if we consider what we know of their capabilities, some of these properties 
 are \emph{possibly} no longer provided.
 Repudiation and plausible deniability cannot be achieved by this protocol 
-design considering an adversary who can record everything on the entire 
-network.
+design with an adversary who can record everything on the entire network.
 Lack of randomness in the \ac{DHKE}\acused{DH}~\cite{dh} used by \ac{OTR} makes 
 the protocol fully deterministic (details in \prettyref{sec:otr}).
-In \prettyref{sec:otrattacks} we show that this allows an adversary with 
+In \prettyref{sec:otrattacks} we discuss that this allows an adversary with 
 transcripts of all network traffic to verify any statements about the 
 conversation using the transcripts.
 To thwart this we need truly deniable encryption, as defined by 
 \citet{deniablecrypt}, which means that we need to introduce some randomness.
 
 
-\section{The \acs{OTR} Messaging Protocol}
+\section[\acl{OTR}]{The \acs{OTR} Messaging Protocol}
 \label{sec:otr}
 
 In this section, we summarize the original version of the \ac{OTR} messaging 
 protocol published in~\cite{otr2004} together with the improvements from 
 \cite{di2005secure}.
 
+\mode<presentation>{%
+  \subsection{Overview}
+  \begin{frame}{Overview of OTR}
+    \begin{itemize}
+      \item Purpose is to make online conversation equivalent to face-to-face.
+
+      \item The properties used:
+        \begin{itemize}
+          \item \ac{PFS},
+          \item authentication,
+          \item integrity and repudiation,
+          \item forgeability and plausible deniability.
+        \end{itemize}
+
+    \end{itemize}
+  \end{frame}
+}
+
 As described above, the purpose of the \ac{OTR} protocol was to give an online 
 conversation the properties of a face-to-face real-life conversation.
 We start with an overview of the properties and how they are achieved:
 \begin{description}
+    \mode<presentation>{%
+      \begin{frame}{Perfect Forward Secrecy}
+        \begin{itemize}
+          \item Continuously changing keys.
+          \item Done through continuous \acf{DHKE}~\cite{dh}.
+            \pause{}
+          \item Crucial to forget the keys!
+        \end{itemize}
+      \end{frame}
+    }
   \item[Perfect forward secrecy] is achieved by continuously changing keys, for 
     every message, using the \ac{DHKE} protocol~\cite{dh}.
     It is of crucial importance for Alice and Bob to forget their keys as soon 
     as possible to achieve this.
 
+    \mode<presentation>{%
+      \begin{frame}{Authentication}
+        \begin{itemize}
+          \item Non-refutable signatures to authenticate the parties.
+          \item Done through long-lived keys.
+            \pause{}
+          \item Sign first \ac{DH} key.
+          \item Previous key authenticates next.
+        \end{itemize}
+      \end{frame}
+    }
   \item[Authentication] is be achieved by using non-refutable signatures so 
     that Bob can verify with whom he is exchanging messages.
     These keys are long-lived to make it easier for Alice and Bob to trust the 
@@ -123,11 +188,36 @@ We start with an overview of the properties and how they are achieved:
     However, no message content will be signed, only the first \ac{DH} exponent 
     will be signed.
 
+    \mode<presentation>{%
+      \begin{frame}{Integrity and Repudiation}
+        \begin{itemize}
+          \item The first key is signed.
+          \item Derive \ac{MAC} key for message authentication.
+            \pause{}
+          \item \ac{MAC} doesn't provide non-repudiation.
+          \item Bob cannot use the \ac{MAC} to prove what Alice said.
+        \end{itemize}
+      \end{frame}
+    }
   \item[Integrity and repudiation] for message content will be achieved by 
     using \acp{MAC}.
     Since \acp{MAC} does not provide non-repudiation, Alice can later 
     repudiate sending a certain message as Bob has the means to forge it.
 
+    \mode<presentation>{%
+      \begin{frame}{Forgeability and Deniability}
+        \begin{itemize}
+          \item Malleable encryption~\cite{nonmalleable}:
+            \begin{itemize}
+              \item Changes to the ciphertext propagates to the plaintext.
+            \end{itemize}
+            \pause{}
+          \item Can make changes to the plaintext by modifying the ciphertext.
+          \item Publish the derived \ac{MAC} key when safe.
+          \item Adversary can compute new valid \acp{MAC}.
+        \end{itemize}
+      \end{frame}
+    }
   \item[Forgeability and plausible deniability] of message content is achieved 
     by using malleable encryption~\cite{nonmalleable}.
     This means that an adversary can do meaningful changes in the plaintext by 
@@ -148,45 +238,162 @@ To communicate using \ac{OTR}, Alice and Bob first runs the protocol in
 \begin{protocol}[\acs{OTR} initialization]\label{prot:otrinit}
   Alice and Bob agree on a multiplicative group \(G\) of prime order \(p\) and 
   a generator \(g\in G\).
-  Alice has a signature and verification key-pair \((S_A, V_A)\) and Bob has 
-  correspondingly \((S_B, V_B)\).
+  Alice has a signature and verification key-pair \((\SignKey{A}, 
+    \VerifKey{A})\) and Bob has correspondingly \((\SignKey{B}, 
+    \VerifKey{B})\).
+  \mode<presentation>{%
+    \begin{frame}{Pre-Initialization}
+      \begin{itemize}
+        \item Multiplicative group \(G\) of prime order \(p\).
+        \item Generator \(g\in G\).
+          \pause{}
+        \item Signature and verification key-pairs:
+          \begin{itemize}
+            \item Alice: \(\SignKey{A}, \VerifKey{A}\)
+            \item Bob: \(\SignKey{B}, \VerifKey{B}\)
+          \end{itemize}
+      \end{itemize}
+    \end{frame}
+  }
 
   Alice chooses a random key \(r\in \K\), from the key-space of the encryption 
-  algorithm \(\Enc\), and \(x_1\in \Z_{\ord G}\).
-  Bob chooses a random \(y_1\in \Z_{\ord G}\).
+  algorithm \(\Enc\), and \(x_1\in \Z_p\).
+  Bob chooses a random \(y_1\in \Z_p\).
+  \begin{frame}
+    \mode<presentation>{%
+      \frametitle{OTR Initialization}
+      \begin{itemize}
+        \item Alice randomly chooses \(r\in \K\) and \(x_1\in \Z_p\).
+        \item
+    }
   Then they exchange the following:
   \begin{align*}
     A\to B &\colon \Enc_r( g^{x_1} ), H( g^{x_1} ) \\
     B\to A &\colon g^{y_1} \\
     A\to B &\colon r
   \end{align*}
+  \mode<presentation>{%
+    \end{itemize}
+  }
+  \end{frame}
 
-  Next, Alice and Bob derives \ac{MAC} keys \(f_{a,1}( g^{xy} ), f_{a,2}( 
-  g^{xy} ), f_{b,1}( g^{xy} ), f_{b,2}( g^{xy} )\) and encryption keys \(h_a( 
-  g^{xy} ), h_b( g^{xy} )\) using some suitable one-way functions \(f_{a,1}, 
-  f_{a,2}, f_{b,1}, f_{b,2}, h_a, h_b\).
-  Alice computes \[M_A = \MAC_{f_{a,1}(g^{xy})}( g^{x_1}, g^{y_1}, V_A 
+  \mode<presentation>{%
+    \begin{frame}{OTR Authentication}
+      \begin{itemize}
+        \item Alice and Bob derive keys from \(g^{x_1 y_1}\):
+          \begin{itemize}
+            \item Two \ac{MAC} keys.
+            \item One encryption key.
+          \end{itemize}
+        \item Done using one-way functions.
+      \end{itemize}
+    \end{frame}
+    \begin{frame}{OTR Authentication}
+      \begin{itemize}
+        \item Alice computes
+          \begin{align*}
+            M_A &= \MAC_{f_{A,1}(g^{x_1 y_1})}( g^{x_1}, g^{y_1}, V_A ) \\
+            X_A &= ( V_A, \Sign_{S_A}( M_A ) ).
+          \end{align*}
+          \pause{}
+        \item She then sends
+          \begin{align*}
+            A\to B\colon &c = \Enc_{h_a(g^{x_1 y_1})}( X_A ), \\
+            &\MAC_{f_{A,2}(g^{x_1 y_1})}( c )
+          \end{align*}
+        \item Bob verifies.
+      \end{itemize}
+    \end{frame}
+  }
+  Next, Alice and Bob derives \ac{MAC} keys \(f_{A,1}( g^{x_1 y_1} ), f_{A,2}( 
+    g^{x_1 y_1} ), f_{B,1}( g^{x_1 y_1} ), f_{B,2}( g^{x_1 y_1} )\) and 
+  encryption keys \(h_a( g^{x_1 y_1} ), h_b( g^{x_1 y_1} )\) using some 
+  suitable one-way functions \(f_{A,1}, f_{A,2}, f_{B,1}, f_{B,2}, h_a, h_b\).
+  Alice computes \[M_A = \MAC_{f_{A,1}(g^{x_1 y_1})}( g^{x_1}, g^{y_1}, V_A 
   )\textand X_A = ( V_A, \Sign_{S_A}( M_A ) ).\]
   She then sends
   \begin{align*}
-    A\to B\colon c = \Enc_{h_a(g^{xy})}( X_A ), \MAC_{f_{a,2}(g^{xy})}( c )
+    A\to B\colon c = \Enc_{h_a(g^{x_1 y_1})}( X_A ), \MAC_{f_{A,2}(g^{x_1 
+        y_1})}( c )
   \end{align*}
   to Bob.
-  Bob verifies the received values and computes \[M_B = \MAC_{f_{b,1}(g^{xy})}( 
-    g^{y_1}, g^{x_1}, V_B )\textand X_B = ( V_B, \Sign_{S_B}( M_B ) ).\]
+  Bob verifies the received values and computes \[%
+    M_B = \MAC_{f_{B,1}(g^{x_1 y_1})}( g^{y_1}, g^{x_1}, V_B )\textand X_B 
+    = ( V_B, \Sign_{S_B}( M_B ) ).
+  \]
   He then sends
   \begin{align*}
-    B\to A\colon c^\prime = \Enc_{h_b(g^{xy})}( X_B ), \MAC_{f_{b,2}(g^{xy})}( 
-    c^\prime )
+    B\to A\colon c^\prime = \Enc_{h_b(g^{x_1 y_1})}( X_B ), 
+    \MAC_{f_{B,2}(g^{x_1 y_1})}( c^\prime )
   \end{align*}
   to Alice, who verifies the received values which concludes the 
   initialization.
 \end{protocol}
 
-Alice and Bob now has both \(g^{x_1}\in G\) and \(g^{y_1}\in G\) and can hence 
-compute \(g^{x_1 y_1}\in G\) which can be used to derive keys.
+Protocol~\ref{prot:otrinit} is summarized in \prettyref{fig:otrinit}.
+Alice and Bob now has a shared key to derive the needed keys.
 Further, since the key exchange protocol is authenticated they can believe they 
 are talking to the right person.
+
+\begin{frame}
+  \mode<presentation>{%
+    \frametitle{Summary OTR Initialization}
+    \footnotesize
+  }
+\begin{figure}
+  \centering
+  \begin{sequencediagram}
+    \newinst{A}{Alice}
+    \newinst{B}{Bob}
+
+    \mess{A}{}{B}
+    \node[anchor=east] at (mess from) {%
+      $\Enc_r( g^{x_1} ), H( g^{x_1} )$
+    };
+
+    \mess{B}{}{A}
+    \node[anchor=west] at (mess from) {%
+      $g^{y_1}$
+    };
+
+    \mess{A}{}{B}
+    \node[anchor=east] at (mess from) {%
+      $r$
+    };
+
+    \mess{A}{}{B}
+    \node[anchor=east] at (mess from) {\shortstack{%
+      $c = \Enc_{h_A(g^{x_1 y_1})}( \VerifKey{A}, \Sign_{\SignKey{A}}( M_A 
+      ) ),$
+    }};
+    \node[anchor=west] at (mess to) {\shortstack{%
+      $M_A = \MAC_{f_{A,1}( g^{x_1 y_1} )}( g^{x_1}, g^{y_1}, \VerifKey{A} )$
+    }};
+    \mess{A}{}{B}
+    \node[anchor=east] at (mess from) {\shortstack{%
+      $\MAC_{f_{A,2}(g^{x_1 y_1})}( c )$
+    }};
+
+    \mess{B}{}{A}
+    \node[anchor=west] at (mess from) {\shortstack{%
+      $c = \Enc_{h_B(g^{x_1 y_1})}( \VerifKey{B}, \Sign_{\SignKey{B}}( M_B 
+      ) ),$
+    }};
+    \node[anchor=east] at (mess to) {\shortstack{%
+      $M_B = \MAC_{f_{B,1}( g^{x_1 y_1} )}( g^{x_1}, g^{y_1}, \VerifKey{B} )$
+    }};
+    \mess{B}{}{A}
+    \node[anchor=west] at (mess from) {\shortstack{%
+      $\MAC_{f_{B,2}(g^{x_1 y_1})}( c )$
+    }};
+  \end{sequencediagram}
+  \mode<article>{%
+  \caption{%
+    The initialization of the \ac{OTR} protocol.
+  }\label{fig:otrinit}
+  }
+\end{figure}
+\end{frame}
 
 \subsection{\acs{OTR} Communication}
 
@@ -195,37 +402,111 @@ exchanging messages \(m_1, m_2, \ldots, m_n\).
 This is accomplished in the following way:
 
 \begin{protocol}[\acs{OTR} communication]\label{prot:otrcomm}
-  Assume Alice has sent \(g^{x_i}\) to Bob and she has received \(g^{y_j}\) 
-  from Bob.
-  Further, let \(H_E, H_M\) be collision-resistant hash functions.
-
-  When Alice wants to send a message \(m_k\) to Bob, she chooses a random 
-  \(x_{i+1}\in\Z_{\ord G}\) and sends
-  \begin{equation*}
-    A\to B\colon g^{x_{i+1}},
-    c_k = \Enc_{H_E( g^{x_i y_j} )}( k )\oplus m_k,
-    \MAC_{H_M( g^{x_i y_j} )}( g^{x_{i+1}}, c_k )
-  \end{equation*}
+  Let \(H_E, H_M\) be collision-resistant hash functions.
+  When Alice wants to send a message \(m_1\) to Bob, she chooses a random 
+  \(x_{2}\in\Z_{p}\) and sends
+  \begin{frame}
+    \mode<presentation>{%
+      \frametitle{OTR Communication}
+      \begin{itemize}
+        \item Alice wants to send \(m_1\).
+        \item Alice chooses \(x_2\in \Z_p\) randomly.
+        \item She sends
+      \end{itemize}
+    }
+    \begin{align*}
+      A\to B\colon &g^{x_2}, \\
+      &c_1 = \Enc_{H_E( g^{x_2 y_1} )}( 1 )\oplus m_1, \\
+      &\MAC_{H_M( g^{x_1 y_1} )}( g^{x_2}, c_1 )
+    \end{align*}
+  \end{frame}
   to Bob.
 
-  Later, when Bob wants to reply a message \(m_{k+1}\), he chooses a random 
-  \(y_{j+1}\in\Z_{\ord G}\) and the latest \(g^{x_{i+n}}\) received from Alice, 
-  and then sends
+  Later, when Alice has sent messages \(m_i\) where \(1\leq i\leq k\), Bob 
+  wants to reply a message \(m_{k+1}\), he chooses a random \(y_2\in\Z_p\) and 
+  \(g^{x_{k+1}}\) received from Alice with her last message \(m_k\).
+  Then he sends
+  \begin{frame}
+    \mode<presentation>{%
+      \frametitle{OTR Communication}
+      \begin{itemize}
+        \item Bob wants to send \(m_{k+1}\).
+        \item Bob chooses \(y_2\) randomly.
+        \item \(x_{k+1}\) was last received from Alice with \(m_k\).
+        \item Bob sends
+      \end{itemize}
+    }
   \begin{align*}
-    B\to A\colon& g^{y_{j+1}}, c_{k+1} = \Enc_{H_E( g^{x_{i+n} y_j} )}( k+1 
-    )\oplus m_{k+1}, \\
-    & \MAC_{H_M( g^{x_{i+n} y_j} )}( g^{y_{j+1}}, c_{k+1} )
+    B\to A\colon & g^{y_2}, \\
+    & c_{k+1} = \Enc_{H_E( g^{x_{k+1} y_1} )}( k+1 )\oplus m_{k+1}, \\
+    & \MAC_{H_M( g^{x_{k+1} y_1} )}( g^{y_2}, c_{k+1} )
   \end{align*}
+  \end{frame}
   to Alice.
 
+  \mode<presentation>{%
+    \begin{frame}{OTR Deniability}
+      \begin{itemize}
+        \item Alice knows Bob has received messages \(m_i\) for \(i\leq k\).
+          \pause{}
+        \item She sends \(H_M( g^{x_i y_1} )\) for \(1\leq i\leq k\).
+      \end{itemize}
+    \end{frame}
+  }
   Once Alice knows that a message sent to Bob has been received, she publishes 
   the \ac{MAC} key \( H_M( g^{x_i y_j} ) \) for that message as part of her 
   next message.
+  Then she forgets about \(x_i, 1\leq i\leq k\).
 \end{protocol}
 
-We can see in Protocol~\ref{prot:otrcomm} that we get a continuous \ac{DHKE} 
-by using the transmission of each message for exchanging the value to be used 
-for the next message.
+\begin{frame}
+  \mode<presentation>{%
+    \frametitle{Summary OTR Communication}
+    \footnotesize
+  }
+\begin{figure}
+  \centering
+  \begin{sequencediagram}
+    \newinst{A}{Alice}
+    \newinst{B}{Bob}
+
+    \mess{A}{}{B}
+    \node[anchor=east] at (mess from) {%
+      $g^{x_2}, c_1 = \Enc_{H_E( g^{x_2 y_1} )}( 1 )\oplus m_1$
+    };
+    \mess{A}{}{B}
+    \node[anchor=east] at (mess from) {%
+      $\MAC_{H_M( g^{x_1 y_1} )}( g^{x_2}, c_k )$
+    };
+
+    \postlevel{}
+
+    \mess{B}{}{A}
+    \node[anchor=west] at (mess from) {%
+      $g^{y_2}, c_{k+1} = \Enc_{H_E( g^{x_{k+1} y_1} )}( k+1 )\oplus m_{k+1}$
+    };
+    \mess{B}{}{A}
+    \node[anchor=west] at (mess from) {%
+      $\MAC_{H_M( g^{x_{k+1} y_1} )}( g^{y_2}, c_{k+1} )$
+    };
+
+    \mess{A}{}{B}
+    \node[anchor=east] at (mess from) {%
+      $H_M( g^{x_i y_1} ), 1\leq i\leq k$
+    };
+
+  \end{sequencediagram}
+  \mode<article>{%
+  \caption{%
+    The communication of the \ac{OTR} protocol.
+  }\label{fig:otrcomm}
+  }
+\end{figure}
+\end{frame}
+
+Protocol~\ref{prot:otrcomm} is summarized in \prettyref{fig:otrcomm}.
+We can see that we get a continuous \ac{DHKE} by using the transmission of each 
+message for exchanging the value to be used for the next message.
 Hence we never use the same key twice.
 We remain authenticated as well, since we provide authenticity for the next 
 \ac{DH} value using a \ac{MAC} keyed with a previously authenticated key.
@@ -237,13 +518,14 @@ Thus, no one can use the \ac{MAC} to verify the message in the future.
 
 For the \ac{PFS}, we need Alice and Bob to forget the keys \(g^{x_i y_j}\) as 
 soon as possible.
-We observe that Alice must keep her secret values \(x_i, x_{i+1}, \ldots, 
-x_{i+n}\) until she has received a message from Bob using a newer value.
-If she does not, then she cannot decrypt any message from Bob using that value 
-in the key.
+We observe that Alice must keep her secret values \(x_1, x_2, \ldots, x_k\) 
+until she has received a message from Bob using a newer value.
+If she does not, then if Bob uses a value \(x_i, i<k+1\) she cannot decrypt 
+that message from Bob.
 
 
-\section{Why Alice and Bob Must Forget Their Conversation}
+\mode<article>{%
+\section[Why We Must Forget]{Why Alice and Bob Must Forget Their Conversation}
 \label{sec:otrattacks}
 
 The protocol does not consider the intelligence agency of a nation state as 
@@ -426,8 +708,11 @@ remember the keys due to \ac{PFS}.
 
 This work was funded by the Swedish Foundation for Strategic Research grant SSF 
 FFL09-0086 and the Swedish Research Council grant VR 2009-3793.
+}
 
 
 %\begin{filecontents}{otrmsg.submission.bbl}
 %\end{filecontents}
+\begin{frame}
 \printbibliography{}
+\end{frame}
