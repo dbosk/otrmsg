@@ -1,8 +1,8 @@
 [submodule "libbib"]
 	path = libbib
-	url = git@priv-git.csc.kth.se:utilities/libbib.git
+	url = https://github.com/dbosk/libbib.git
 	branch = master
 [submodule "makefiles"]
 	path = makefiles
-	url = git@github.com:dbosk/makefiles.git
+	url = https://github.com/dbosk/makefiles.git
 	branch = master
